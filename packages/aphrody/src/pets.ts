@@ -237,7 +237,7 @@ export async function buildPet(
   const raw = join(cacheDir, `${plan.id}.rgba`);
   await Bun.write(raw, sheet);
   const spritesheet = join(folder, "spritesheet.webp");
-  await $`ffmpeg -loglevel error -y -f rawvideo -pix_fmt rgba -s ${sheetWidth}x${sheetHeight} -i ${raw} -c:v libwebp -lossless 1 -q:v 100 -frames:v 1 ${spritesheet}`;
+  await $`ffmpeg -loglevel error -y -f rawvideo -pix_fmt rgba -s ${sheetWidth}x${sheetHeight} -i ${raw} -c:v libwebp -lossless 1 -compression_level 6 -q:v 100 -frames:v 1 ${spritesheet}`;
 
   const metadata = {
     id: plan.id,
