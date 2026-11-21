@@ -1,5 +1,8 @@
 import { createHash, randomUUID } from "node:crypto";
-import { chmodSync, closeSync, fsyncSync, linkSync, lstatSync, mkdirSync, openSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
+// linkSync, renameSync and rmSync are called through the default export so the late-bound
+// fs object stays patchable by the fault-injection checks (Bun does not propagate
+// syncBuiltinESMExports to named ESM imports).
+import fs, { chmodSync, closeSync, fsyncSync, lstatSync, mkdirSync, openSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, isAbsolute, join, parse, resolve } from "node:path";
 
 import { applyEdits, modify, parse as parseJsonc, type ParseError } from "jsonc-parser";
@@ -392,7 +395,7 @@ export function executeZedMcpWrite(plan: ZedPlannedWrite): void {
         // Keep the original inode recoverable while the visible target is
         // withdrawn. An exclusive hard link also preserves writes through an
         // already-open descriptor after publication.
-        linkSync(plan.targetPath, plan.backupPath);
+        fs.linkSync(plan.targetPath, plan.backupPath);
       } catch (error) {
         if (isAlreadyExistsError(error)) throw new Error("Zed settings changed during this operation. Refresh the status and try again.");
         throw error;
@@ -410,7 +413,7 @@ export function executeZedMcpWrite(plan: ZedPlannedWrite): void {
       try {
         // Claim creation is no-clobber. The backup hard link keeps the source
         // inode recoverable even after the target directory entry is removed.
-        linkSync(plan.targetPath, plan.claimPath);
+        fs.linkSync(plan.targetPath, plan.claimPath);
       } catch (error) {
         if (isAlreadyExistsError(error)) throw new Error("Zed settings changed during this operation. Refresh the status and try again.");
         throw error;
@@ -426,7 +429,7 @@ export function executeZedMcpWrite(plan: ZedPlannedWrite): void {
         throw new Error("Zed settings changed during this operation. Refresh the status and try again.");
       }
       try {
-        renameSync(plan.targetPath, withdrawalPath);
+        fs.renameSync(plan.targetPath, withdrawalPath);
       } catch (error) {
         if (isAlreadyExistsError(error)) throw new Error("Zed settings changed during this operation. Refresh the status and try again.");
         throw error;
@@ -437,7 +440,7 @@ export function executeZedMcpWrite(plan: ZedPlannedWrite): void {
       if (withdrawnTarget.exists) throw new Error("Zed settings changed during this operation. Refresh the status and try again.");
 
       try {
-        linkSync(plan.tempPath, plan.targetPath);
+        fs.linkSync(plan.tempPath, plan.targetPath);
       } catch (error) {
         if (isAlreadyExistsError(error)) throw new Error("Zed settings changed during this operation. Refresh the status and try again.");
         throw error;
@@ -476,7 +479,7 @@ export function executeZedMcpWrite(plan: ZedPlannedWrite): void {
     } else {
       // A missing target must not be replaced if another writer creates it first.
       try {
-        linkSync(plan.tempPath, plan.targetPath);
+        fs.linkSync(plan.tempPath, plan.targetPath);
       } catch (error) {
         if (isAlreadyExistsError(error)) throw new Error("Zed settings changed during this operation. Refresh the status and try again.");
         throw error;
@@ -575,7 +578,7 @@ function assertZedHardLinkSupport(parent: string): void {
     sourceCreated = true;
     closeSync(sourceFd);
     sourceFd = undefined;
-    linkSync(sourcePath, linkPath);
+    fs.linkSync(sourcePath, linkPath);
     linkCreated = true;
   } catch {
     throw new Error("Zed settings writes require filesystem hard-link support.");
@@ -584,10 +587,10 @@ function assertZedHardLinkSupport(parent: string): void {
       try { closeSync(sourceFd); } catch { /* best effort */ }
     }
     if (sourceCreated) {
-      try { rmSync(sourcePath, { force: true }); } catch { /* best effort */ }
+      try { fs.rmSync(sourcePath, { force: true }); } catch { /* best effort */ }
     }
     if (linkCreated) {
-      try { rmSync(linkPath, { force: true }); } catch { /* best effort */ }
+      try { fs.rmSync(linkPath, { force: true }); } catch { /* best effort */ }
     }
   }
 }
@@ -627,7 +630,7 @@ function acquireZedWriteLock(lockPath: string, parent: string, plan: ZedPlannedW
     closeSync(ownerFd);
 
     try {
-      linkSync(ownerTempPath, lockPath);
+      fs.linkSync(ownerTempPath, lockPath);
     } catch (error) {
       try {
         removeZedRecoveryArtifact(ownerTempPath, parent, ownerTempHash, "Zed write lock owner artifact changed during cleanup.");
@@ -675,7 +678,7 @@ function recoverStaleZedWriteLock(lockPath: string, parent: string, targetPath: 
 
   const claimPath = uniquePath(join(parent, `.openpets-zed-lock-recovery-${process.pid}-${Date.now()}-${randomUUID()}.tmp`));
   try {
-    renameSync(lockPath, claimPath);
+    fs.renameSync(lockPath, claimPath);
   } catch (error) {
     if (isMissingError(error)) return;
     throw error;
@@ -732,7 +735,7 @@ function restoreZedWriteLockClaim(claimPath: string, lockPath: string): void {
   const parent = dirname(lockPath);
   const claim = readZedRecoveryArtifact(claimPath, parent);
   try {
-    linkSync(claimPath, lockPath);
+    fs.linkSync(claimPath, lockPath);
   } catch (error) {
     if (!isAlreadyExistsError(error)) throw error;
   }
@@ -943,7 +946,7 @@ function removeZedRecoveryArtifact(path: string, parent: string, expectedHash: s
 
   const cleanupPath = uniquePath(join(parent, `.openpets-zed-cleanup-${process.pid}-${Date.now()}-${randomUUID()}.tmp`));
   try {
-    renameSync(path, cleanupPath);
+    fs.renameSync(path, cleanupPath);
   } catch (error) {
     if (isMissingError(error)) return;
     throw error;
@@ -954,19 +957,19 @@ function removeZedRecoveryArtifact(path: string, parent: string, expectedHash: s
     restoreZedCleanupArtifact(cleanupPath, path, parent);
     throw new Error(ambiguousMessage);
   }
-  rmSync(cleanupPath, { force: true });
+  fs.rmSync(cleanupPath, { force: true });
 }
 
 function restoreZedCleanupArtifact(cleanupPath: string, originalPath: string, parent: string): void {
   const original = readZedRecoveryArtifact(originalPath, parent);
   if (original.exists) return;
   try {
-    linkSync(cleanupPath, originalPath);
+    fs.linkSync(cleanupPath, originalPath);
   } catch (error) {
     if (!isAlreadyExistsError(error)) throw error;
     return;
   }
-  rmSync(cleanupPath, { force: true });
+  fs.rmSync(cleanupPath, { force: true });
 }
 
 function restoreZedOriginalFromJournal(record: ZedWriteLockRecord, parent: string, content: string): void {
@@ -981,13 +984,13 @@ function restoreZedOriginalFromJournal(record: ZedWriteLockRecord, parent: strin
   }
   try {
     try {
-      linkSync(restorePath, record.targetPath);
+      fs.linkSync(restorePath, record.targetPath);
     } catch (error) {
       if (isAlreadyExistsError(error)) throw new Error("Zed settings changed during recovery. Refresh the status and try again.");
       throw error;
     }
   } finally {
-    rmSync(restorePath, { force: true });
+    fs.rmSync(restorePath, { force: true });
   }
 }
 
@@ -1007,7 +1010,7 @@ function restoreZedWithdrawalAfterFailedWrite(targetPath: string, preparedPath: 
     removeZedRecoveryArtifact(targetPath, parent, hashZedSettingsContent(preparedContent), "Zed settings changed during recovery. Refresh the status and try again.");
   }
   try {
-    linkSync(withdrawalPath, targetPath);
+    fs.linkSync(withdrawalPath, targetPath);
   } catch (error) {
     if (isAlreadyExistsError(error)) return undefined;
     throw error;
