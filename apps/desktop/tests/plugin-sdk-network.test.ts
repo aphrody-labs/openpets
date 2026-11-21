@@ -1,9 +1,13 @@
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
+import { createRequire } from "node:module";
+import { dirname, join } from "node:path";
+import { pathToFileURL } from "node:url";
 
-import { Agent, fetch as undiciFetch, getGlobalDispatcher, setGlobalDispatcher } from "undici";
+import { Agent, fetch as undiciFetch } from "undici";
 import {
   assertPublicHost,
+  createGuardedLookup,
   isExplicitLocalIp,
   isPrivateIp,
   safeHttpFetch,
@@ -355,7 +359,10 @@ await test("bracketed IPv6 URLs are normalized but remain denied by the manifest
   }
 });
 
-await test("the real guarded Undici agent maps an approved local hostname to an offline fixture", async () => {
+await test("the guarded lookup pins a real Undici agent to the approved local hostname", async () => {
+  // Bun replaces the bare "undici" specifier with a built-in stub, so load the real package by path.
+  const undiciRoot = dirname(createRequire(import.meta.url).resolve("undici/package.json"));
+  const undici = (await import(pathToFileURL(join(undiciRoot, "index.js")).href)) as typeof import("undici");
   let port = 0;
   const server = createServer((request, response) => {
     assert.equal(request.headers.host, `fixture.localhost:${port}`);
@@ -368,20 +375,22 @@ await test("the real guarded Undici agent maps an approved local hostname to an 
   const address = server.address();
   assert.ok(address && typeof address === "object");
   port = address.port;
-  const previousDispatcher = getGlobalDispatcher();
+  const previousDispatcher = undici.getGlobalDispatcher();
   let globalDispatcherUsed = false;
-  let lookupCalled = false;
-  const sentinel = new Agent({ connect: { lookup: (_hostname, _options, callback) => { globalDispatcherUsed = true; callback(new Error("global dispatcher used"), "", 0); } } });
-  setGlobalDispatcher(sentinel);
-  const restore = setPluginSdkNetworkTestHooks({ lookup: async (hostname) => { lookupCalled = true; assert.equal(hostname, "fixture.localhost"); return [{ address: "127.0.0.1", family: 4 }]; } });
+  const sentinel = new undici.Agent({ connect: { lookup: (_hostname, _options, callback) => { globalDispatcherUsed = true; callback(new Error("global dispatcher used"), "", 0); } } });
+  undici.setGlobalDispatcher(sentinel);
+  const url = new URL(`http://fixture.localhost:${port}/`);
+  const agent = new undici.Agent({ connect: { lookup: createGuardedLookup(url, [{ address: "127.0.0.1", family: 4 }]) }, connections: 1, pipelining: 1 });
   try {
-    const result = await safeHttpFetch(`http://fixture.localhost:${port}/`, { method: "GET" }, new Set([`fixture.localhost:${port}`]), true, undefined, limits);
-    assert.equal(result.text, "fixture response");
-    assert.equal(lookupCalled, true);
+    const result = await undici.fetch(url, { dispatcher: agent });
+    assert.equal(await result.text(), "fixture response");
     assert.equal(globalDispatcherUsed, false);
+    const foreign = createGuardedLookup(url, [{ address: "127.0.0.1", family: 4 }]);
+    const refusal = await new Promise<NodeJS.ErrnoException | null>((resolve) => foreign("other.localhost", {}, (error) => resolve(error)));
+    assert.equal(refusal?.code, "EAI_AGAIN");
   } finally {
-    restore();
-    setGlobalDispatcher(previousDispatcher);
+    undici.setGlobalDispatcher(previousDispatcher);
+    await agent.close();
     await sentinel.close();
     await new Promise<void>((resolve) => server.close(() => resolve()));
   }

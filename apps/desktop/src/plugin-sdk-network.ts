@@ -242,9 +242,10 @@ async function prepareSafeRequest(urlText: string, opts: ValidatedNetOptions, al
   return { url, init, addresses };
 }
 
-function createGuardedAgent(url: URL, addresses: readonly ResolvedAddress[]): Agent {
+/** Pins connections to the addresses that were validated for this URL's hostname. */
+export function createGuardedLookup(url: URL, addresses: readonly ResolvedAddress[]): LookupFunction {
   let nextAddress = 0;
-  const lookup: LookupFunction = (hostname, options, callback) => {
+  return (hostname, options, callback) => {
     if (normalizeHostname(hostname) !== normalizeHostname(url.hostname) || addresses.length === 0) {
       const error = new Error(RESTRICTED_ADDRESS_ERROR) as NodeJS.ErrnoException;
       error.code = "EAI_AGAIN";
@@ -258,7 +259,10 @@ function createGuardedAgent(url: URL, addresses: readonly ResolvedAddress[]): Ag
     const address = addresses[nextAddress++ % addresses.length]!;
     callback(null, address.address, address.family);
   };
-  return new Agent({ connect: { lookup }, connections: 1, pipelining: 1 });
+}
+
+function createGuardedAgent(url: URL, addresses: readonly ResolvedAddress[]): Agent {
+  return new Agent({ connect: { lookup: createGuardedLookup(url, addresses) }, connections: 1, pipelining: 1 });
 }
 
 async function awaitBoundedCleanup(cleanup: Promise<unknown>): Promise<void> {
