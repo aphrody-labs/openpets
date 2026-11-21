@@ -32,7 +32,7 @@ const deviceMock = `
 `;
 const pluginUrl = `data:text/javascript,${encodeURIComponent(pluginMock)}`;
 const deviceUrl = `data:text/javascript,${encodeURIComponent(deviceMock)}`;
-await register(`data:text/javascript,${encodeURIComponent(`
+register(`data:text/javascript,${encodeURIComponent(`
   export async function resolve(specifier, context, nextResolve) {
     if (specifier === "./plugin-voice.js" && context.parentURL.includes("provider-configuration-test-session")) return { url: ${JSON.stringify(pluginUrl)}, shortCircuit: true };
     if (specifier === "./voice-device-service.js" && context.parentURL.includes("provider-configuration-test-session")) return { url: ${JSON.stringify(deviceUrl)}, shortCircuit: true };

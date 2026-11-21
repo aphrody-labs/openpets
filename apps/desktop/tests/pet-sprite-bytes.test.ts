@@ -20,7 +20,7 @@ const snapshots = mock(`
   export function isWindowMotionSnapshotUrlAuthorized(sender) { return sender.authorized; }
 `);
 const logger = mock("export function warn() {};");
-await register(mock(`
+register(mock(`
   const mocks = new Map([['electron', ${JSON.stringify(electron)}], ['./pet-motion-snapshot.js', ${JSON.stringify(snapshots)}], ['./logger.js', ${JSON.stringify(logger)}]]);
   export async function resolve(specifier, context, nextResolve) {
     if (mocks.has(specifier)) return { url: mocks.get(specifier), shortCircuit: true };

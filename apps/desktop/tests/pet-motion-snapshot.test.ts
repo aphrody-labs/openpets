@@ -45,7 +45,7 @@ const filesystem = mock(`
   }
 `);
 (globalThis as typeof globalThis & { snapshotRemovalPromises: Promise<void>[] }).snapshotRemovalPromises = [];
-await register(mock(`
+register(mock(`
   const mocks = new Map([
     ['electron', ${JSON.stringify(electron)}],
     ['./pet-paths.js', ${JSON.stringify(paths)}],

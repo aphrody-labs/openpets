@@ -18,10 +18,10 @@ interface ResolveResult {
 }
 
 type NextResolve = (specifier: string, context?: ResolveContext) => ResolveResult;
-type ResolveHook = (specifier: string, context: ResolveContext, nextResolve: NextResolve) => ResolveResult | Promise<ResolveResult>;
+type ResolveHook = (specifier: string, context: ResolveContext, nextResolve: NextResolve) => ResolveResult;
 
 interface BunPluginBuilder {
-  onResolve(options: { readonly filter: RegExp }, callback: (args: { readonly path: string; readonly importer: string }) => Promise<{ readonly path: string; readonly namespace?: string } | undefined>): void;
+  onResolve(options: { readonly filter: RegExp }, callback: (args: { readonly path: string; readonly importer: string }) => { readonly path: string; readonly namespace?: string } | undefined): void;
   onLoad(options: { readonly filter: RegExp; readonly namespace: string }, callback: (args: { readonly path: string }) => { readonly contents: string; readonly loader: "js" }): void;
 }
 
@@ -52,10 +52,10 @@ export function registerHooks(hooks: { readonly resolve: ResolveHook }): HookReg
   bun().plugin({
     name: "openpets-desktop-test-hooks",
     setup(build) {
-      build.onResolve({ filter: /.*/ }, async ({ path, importer }) => {
+      build.onResolve({ filter: /.*/ }, ({ path, importer }) => {
         if (!active) return undefined;
         const context: ResolveContext = { parentURL: toParentUrl(importer), conditions: ["node", "import"], importAttributes: {} };
-        const result = await hooks.resolve(path, context, () => fallThrough);
+        const result = hooks.resolve(path, context, () => fallThrough);
         if (result === fallThrough) return undefined;
         if (result.url.startsWith("data:")) return { path: result.url, namespace: dataNamespace };
         if (result.url.startsWith("file:")) return { path: fileURLToPath(result.url) };
@@ -70,8 +70,13 @@ export function registerHooks(hooks: { readonly resolve: ResolveHook }): HookReg
   return { deregister: () => { active = false; } };
 }
 
-/** Node's asynchronous loader hook entry: `hookUrl` is a data: module exporting `resolve`. */
-export async function register(hookUrl: string, _parentUrl?: string): Promise<void> {
-  const hooks = (await import(hookUrl)) as { readonly resolve: ResolveHook };
-  registerHooks({ resolve: hooks.resolve });
+/**
+ * Node's asynchronous loader hook entry: `hookUrl` is a data: module exporting `resolve`.
+ * Bun plugin resolution is synchronous, so the module source is evaluated here instead of
+ * imported; the hook bodies are synchronous despite their `async` declaration.
+ */
+export function register(hookUrl: string, _parentUrl?: string): void {
+  const source = decodeURIComponent(hookUrl.slice(hookUrl.indexOf(",") + 1)).replace(/export\s+(?:async\s+)?function/g, "function");
+  const resolve = new Function(`${source}\nreturn resolve;`)() as ResolveHook;
+  registerHooks({ resolve });
 }

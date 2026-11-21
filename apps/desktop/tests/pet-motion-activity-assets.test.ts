@@ -10,7 +10,7 @@ import type { MotionAppearance, MotionBodyDescriptor } from "../src/pet-body-con
 import { createPetBodyState } from "../src/pet-body-state.js";
 
 const mock = (source: string) => `data:text/javascript,${encodeURIComponent(source)}`;
-await register(mock(`
+register(mock(`
   export async function resolve(specifier, context, nextResolve) {
     if ((specifier === './pet-motion-snapshot.js' || specifier === './pet-motion-snapshot.ts') && /pet-motion-activity-assets\\.(js|ts)(\\?|$)/.test(context.parentURL)) {
       return { url: ${JSON.stringify(mock("export function isTrackedMotionSnapshotDescriptor(value) { return value === globalThis.motionTestDescriptor; }"))}, shortCircuit: true };

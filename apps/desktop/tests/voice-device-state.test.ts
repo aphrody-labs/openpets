@@ -14,7 +14,7 @@ const electronMock = `data:text/javascript,${encodeURIComponent(`
   export const shell = { openPath: async () => "" };
   export default { app, net, powerMonitor, screen, shell };
 `)}`;
-await register(`data:text/javascript,${encodeURIComponent(`
+register(`data:text/javascript,${encodeURIComponent(`
   export async function resolve(specifier, context, nextResolve) {
     if (specifier === "electron") return { url: ${JSON.stringify(electronMock)}, shortCircuit: true };
     return nextResolve(specifier, context);

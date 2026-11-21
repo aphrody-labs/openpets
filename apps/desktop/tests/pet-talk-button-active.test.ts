@@ -49,7 +49,7 @@ const electronMock = `data:text/javascript,${encodeURIComponent(`
   export default { BrowserWindow, app, clipboard, dialog, globalShortcut, ipcMain, Menu, nativeImage, nativeTheme, net, Notification, powerMonitor, protocol, safeStorage, screen, session, shell, systemPreferences, Tray };
 `)}`;
 
-await register(`data:text/javascript,${encodeURIComponent(`
+register(`data:text/javascript,${encodeURIComponent(`
   export async function resolve(specifier, context, nextResolve) {
     if (specifier === "electron") return { url: ${JSON.stringify(electronMock)}, shortCircuit: true };
     return nextResolve(specifier, context);
