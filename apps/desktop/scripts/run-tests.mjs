@@ -46,6 +46,11 @@ function logDiscoveredArtifacts(label, artifacts) {
     console.log(`- ${relativePath(rootDir, artifact)}`);
 }
 
+// `bun test` treats a bare argument as a name filter; a leading ./ makes it a file path.
+function bunTestPath(test) {
+  return `./${relativePath(rootDir, test)}`;
+}
+
 function commandForPlatform(command, args) {
   return { command, args };
 }
@@ -76,10 +81,10 @@ function run(command, args = [], options = {}) {
 
 async function main() {
   console.log("\n[preflight] Checking test discovery invariants...");
-  await run("node", ["scripts/test-discovery.test.mjs"]);
+  await run("bun", ["scripts/test-discovery.test.mjs"]);
 
   console.log("\n[preflight] Checking npm release gate invariants...");
-  await run("node", ["scripts/npm-release-gate.test.mjs"]);
+  await run("bun", ["scripts/npm-release-gate.test.mjs"]);
 
   const { behaviorTests, contractTests, distChecks } =
     await discoverArtifacts(rootDir);
@@ -107,14 +112,14 @@ async function main() {
   console.log("\n[3/5] Running behavior tests...");
   for (const test of behaviorTests) {
     console.log(`- ${relativePath(rootDir, test)}`);
-    await run("node", [test]);
+    await run("bun", ["test", bunTestPath(test)]);
   }
 
   // 4. Run contract tests
   console.log("\n[4/5] Running contract tests...");
   for (const test of contractTests) {
     console.log(`- ${relativePath(rootDir, test)}`);
-    await run("node", [test]);
+    await run("bun", ["test", bunTestPath(test)]);
   }
 
   // 5. Run remaining dist checks
@@ -126,7 +131,7 @@ async function main() {
   await assertArtifactsExist("dist check", distChecks);
   for (const check of distChecks) {
     console.log(`- ${relativePath(rootDir, check)}`);
-    await run("node", [check]);
+    await run("bun", [check]);
   }
 
   console.log("\nâœ“ All tests passed!");

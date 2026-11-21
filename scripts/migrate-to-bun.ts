@@ -26,6 +26,7 @@ const rewriteCommand = (command: string): string =>
     .replace(/pnpm install/g, "bun install")
     .replace(/pnpm run /g, "bun run ")
     .replace(/\bpnpm ([a-z][\w:-]*)/g, "bun run $1")
+    .replace(/\bnode --import tsx --test /g, "bun test ")
     .replace(/\bnode --test /g, "bun test ")
     .replace(/\bnode (\S+\.(?:mjs|js|ts))/g, "bun $1");
 
@@ -48,6 +49,14 @@ for (const path of manifestPaths) {
     for (const [name, command] of Object.entries<string>(manifest.scripts))
       manifest.scripts[name] = rewriteCommand(command);
   }
+  // Bun runs TypeScript natively; tsx is only dropped once no script still invokes it.
+  if (
+    manifest.devDependencies?.tsx &&
+    !Object.values<string>(manifest.scripts ?? {}).some((command) =>
+      /\btsx\b/.test(command),
+    )
+  )
+    delete manifest.devDependencies.tsx;
   if (path === "package.json") {
     manifest.packageManager = `bun@${bunVersion}`;
     manifest.engines = { bun: `>=${bunVersion}` };
