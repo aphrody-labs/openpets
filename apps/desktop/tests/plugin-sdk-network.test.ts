@@ -14,7 +14,10 @@ import {
 const limits = { responseBytes: 32, streamResponseBytes: 32 };
 
 function response(value: string, init?: ResponseInit): Awaited<ReturnType<typeof undiciFetch>> {
-  return new Response(value, init) as unknown as Awaited<ReturnType<typeof undiciFetch>>;
+  // Bun omits the implicit text/plain content type that undici adds for string bodies.
+  const headers = new Headers(init?.headers);
+  if (!headers.has("content-type")) headers.set("content-type", "text/plain;charset=UTF-8");
+  return new Response(value, { ...init, headers }) as unknown as Awaited<ReturnType<typeof undiciFetch>>;
 }
 
 await test("a mixed DNS answer set is denied before dispatch", async () => {

@@ -1,6 +1,8 @@
 import { app, type BrowserWindow, type WebContents } from "electron";
 import { randomUUID } from "node:crypto";
-import { lstat, mkdir, mkdtemp, readdir, realpath, rm, stat } from "node:fs/promises";
+// rm is called through the default export so the removal checks can observe it under Bun,
+// whose named builtin imports are not patchable.
+import fsPromises, { lstat, mkdir, mkdtemp, readdir, realpath, stat } from "node:fs/promises";
 import { join, sep } from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -60,7 +62,7 @@ function initializeSnapshotRoot(): Promise<string> {
       const path = join(root, entry.name);
       const info = await lstat(path);
       if (!info.isSymbolicLink() && info.isDirectory()) {
-        await rm(path, { recursive: true, force: true });
+        await fsPromises.rm(path, { recursive: true, force: true });
       }
     }
     snapshotRoot = root;
@@ -73,7 +75,7 @@ function removeSnapshot(snapshot: Snapshot): void {
   if (snapshot.owners.size > 0 || !snapshots.delete(snapshot.descriptor.snapshotId)) return;
   if (snapshot.expiry) clearTimeout(snapshot.expiry);
   if (revisions.get(snapshot.revision) === snapshot) revisions.delete(snapshot.revision);
-  const removal = rm(snapshot.directory, { recursive: true, force: true }).catch((error: unknown) => {
+  const removal = fsPromises.rm(snapshot.directory, { recursive: true, force: true }).catch((error: unknown) => {
     warn("pet.window", "motion snapshot cleanup failed", { error: String(error) });
   });
   removals.add(removal);
@@ -146,7 +148,7 @@ export function prepareInstalledMotionSnapshot(
       snapshot.expiry.unref();
       return descriptor;
     } catch (error) {
-      await rm(target, { recursive: true, force: true });
+      await fsPromises.rm(target, { recursive: true, force: true });
       throw error;
     }
   });

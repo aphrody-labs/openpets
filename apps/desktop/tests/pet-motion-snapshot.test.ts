@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { EventEmitter } from "node:events";
+import { createRequire } from "node:module";
 import { access, mkdtemp, mkdir, readFile, rename, rm, symlink, writeFile } from "node:fs/promises";
 import { register } from "./support/module-hooks.js";
 import { tmpdir } from "node:os";
@@ -35,16 +36,15 @@ const lock = mock(`
   }
 `);
 const logger = mock(`export function warn() {}`);
-const filesystem = mock(`
-  export * from 'node:fs/promises';
-  import { rm as originalRemove } from 'node:fs/promises';
-  export function rm(...args) {
-    const operation = originalRemove(...args);
-    globalThis.snapshotRemovalPromises.push(operation);
-    return operation;
-  }
-`);
-(globalThis as typeof globalThis & { snapshotRemovalPromises: Promise<void>[] }).snapshotRemovalPromises = [];
+const snapshotRemovalPromises: Promise<void>[] = [];
+(globalThis as typeof globalThis & { snapshotRemovalPromises: Promise<void>[] }).snapshotRemovalPromises = snapshotRemovalPromises;
+const fsPromises = createRequire(import.meta.url)("node:fs/promises") as typeof import("node:fs/promises");
+const originalRemove = fsPromises.rm;
+fsPromises.rm = ((...args: Parameters<typeof originalRemove>) => {
+  const operation = originalRemove(...args);
+  snapshotRemovalPromises.push(operation);
+  return operation;
+}) as typeof fsPromises.rm;
 register(mock(`
   const mocks = new Map([
     ['electron', ${JSON.stringify(electron)}],
@@ -55,9 +55,6 @@ register(mock(`
     ['./logger.js', ${JSON.stringify(logger)}],
   ]);
   export async function resolve(specifier, context, nextResolve) {
-    if (specifier === 'node:fs/promises' && /pet-motion-snapshot\.(js|ts)(\\?|$)/.test(context.parentURL)) {
-      return { url: ${JSON.stringify(filesystem)}, shortCircuit: true };
-    }
     if (mocks.has(specifier)) return { url: mocks.get(specifier), shortCircuit: true };
     if (specifier.endsWith('.ts') && mocks.has(specifier.slice(0, -3) + '.js')) {
       return { url: mocks.get(specifier.slice(0, -3) + '.js'), shortCircuit: true };
