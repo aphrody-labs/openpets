@@ -17,7 +17,8 @@ import { readBoundedRegularFile } from "@open-pets/pet-format/node/files";
 import { assertNoUnresolvedPetInstallTransaction, createPetInstallCandidate, runPetInstallTransaction } from "./pet-install-transaction.js";
 import { assertSafePetId, getPetsRoot } from "./pet-paths.js";
 
-const codexPetsRoot = join(homedir(), ".codex", "pets");
+// Bun's os.homedir() is fixed at process start; honour a live HOME or USERPROFILE override as Node does.
+const codexPetsRoot = join((process.platform === "win32" ? process.env.USERPROFILE : process.env.HOME) || homedir(), ".codex", "pets");
 const codexThumbnailCache = new Map<string, string>();
 
 export interface CodexPetUiState {

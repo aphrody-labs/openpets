@@ -53,6 +53,8 @@ export function registerHooks(hooks: { readonly resolve: ResolveHook }): HookReg
     name: "openpets-desktop-test-hooks",
     setup(build) {
       build.onResolve({ filter: /.*/ }, ({ path, importer }) => {
+        // Direct data: imports share one instance with hook-resolved ones, as under Node.
+        if (path.startsWith("data:")) return { path, namespace: dataNamespace };
         if (!active) return undefined;
         const context: ResolveContext = { parentURL: toParentUrl(importer), conditions: ["node", "import"], importAttributes: {} };
         const result = hooks.resolve(path, context, () => fallThrough);

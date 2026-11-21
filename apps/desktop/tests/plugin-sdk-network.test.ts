@@ -289,7 +289,8 @@ await test("request deadline remains active while agent cleanup is stalled", asy
     assert.equal(cleared, true);
   } finally {
     restore();
-    void stalledAgent.destroy();
+    // Bun's built-in undici shim has no Agent.destroy.
+    void stalledAgent.destroy?.();
   }
 });
 
