@@ -10,12 +10,12 @@ their own doc, [Testing and validation](/testing-and-validation).
 
 ## Layout & toolchain
 
-- **Monorepo**: pnpm workspaces (`pnpm-workspace.yaml`) over `apps/*` and
-  `packages/*`. Package manager pinned to `pnpm@11.x`; Node `>=20`.
+- **Monorepo**: Bun workspaces (`package.json` `workspaces`) over `apps/*` and
+  `packages/*`. Package manager pinned to `bun@1.4.6`; Node `>=20`.
 - **ESM + TypeScript everywhere**: every package is `"type": "module"` with dual
   type exports; internal links use `workspace:*`.
 - **`web/` uses Bun + Nuxt** and is a separate toolchain - its commands run from
-  `web/` with `bun`, not pnpm. Only its data/catalog side is in scope here (see
+  `web/` with `bun`. Only its data/catalog side is in scope here (see
   [Catalogs](/catalog)).
 - **Versioning**: packages align around SDK v3 / `manifestVersion 3`. The
   workspace version is owned by the root `package.json`; do not duplicate a
@@ -30,37 +30,37 @@ All from the repo root unless noted (full list in root `package.json`):
 
 | Command | What it does |
 |---------|--------------|
-| `pnpm build` | Build every package (`pnpm -r build`) |
-| `pnpm typecheck` | Type-check every package |
-| `pnpm check` | Per-package `check` (typecheck + build + contract checks) |
-| `pnpm test` | Build, then run each package's tests |
-| `pnpm dev:desktop` | Run the desktop app in dev |
-| `pnpm dev:desktop:control-center` | Dev with renderer/Control Center focus |
-| `pnpm dev:desktop:plugins` | Dev with official plugins hot-loaded |
-| `pnpm dev:desktop:third-parties` | Dev with direct plugin folders under `third-parties` hot-loaded |
-| `pnpm capture <cmd>` | Long-running dev capture session for transparent pet/plugin screenshots (see [Screenshots](/screenshots)) |
-| `pnpm package:desktop` / `:dir` | Build + package the desktop app (full / unpacked dir) |
-| `pnpm vscode:check` | Build extension workspace dependencies, then type-check and test the VS Code extension |
-| `pnpm vscode:build` | Build extension workspace dependencies and bundles |
-| `pnpm vscode:package` | Build dependencies and package a local VSIX without dependency collection |
-| `pnpm release:desktop` | macOS-local build, automatic SignPath Windows signing, and verified GitHub publication |
-| `pnpm release:npm` | Publish npm packages |
-| `pnpm plugins:*` | Plugin test/validate/package/publish/deploy (see below) |
-| `pnpm marketplace:validator:build` | Rebuild Studio's portable plugin validator from desktop validation source |
-| `pnpm marketplace:validator:check` | Verify the checked-in validator bundle is current |
-| `pnpm marketplace:validator:test` | Exercise package validation and publisher CLI behavior |
-| `pnpm marketplace:publish …` | Prepare, validate, reserve and submit immutable plugin releases through the API |
-| `pnpm marketplace:migrate …` | Plan, check, explicitly import and verify the complete existing inventory |
-| `pnpm marketplace:release:check …` | Check audited cutover inventory, public artifact integrity and release compatibility |
+| `bun run build` | Build every package (`bun run --filter '*' build`) |
+| `bun run typecheck` | Type-check every package |
+| `bun run check` | Per-package `check` (typecheck + build + contract checks) |
+| `bun run test` | Build, then run each package's tests |
+| `bun run dev:desktop` | Run the desktop app in dev |
+| `bun run dev:desktop:control-center` | Dev with renderer/Control Center focus |
+| `bun run dev:desktop:plugins` | Dev with official plugins hot-loaded |
+| `bun run dev:desktop:third-parties` | Dev with direct plugin folders under `third-parties` hot-loaded |
+| `bun run capture <cmd>` | Long-running dev capture session for transparent pet/plugin screenshots (see [Screenshots](/screenshots)) |
+| `bun run package:desktop` / `:dir` | Build + package the desktop app (full / unpacked dir) |
+| `bun run vscode:check` | Build extension workspace dependencies, then type-check and test the VS Code extension |
+| `bun run vscode:build` | Build extension workspace dependencies and bundles |
+| `bun run vscode:package` | Build dependencies and package a local VSIX without dependency collection |
+| `bun run release:desktop` | macOS-local build, automatic SignPath Windows signing, and verified GitHub publication |
+| `bun run release:npm` | Publish npm packages |
+| `bun run plugins:*` | Plugin test/validate/package/publish/deploy (see below) |
+| `bun run marketplace:validator:build` | Rebuild Studio's portable plugin validator from desktop validation source |
+| `bun run marketplace:validator:check` | Verify the checked-in validator bundle is current |
+| `bun run marketplace:validator:test` | Exercise package validation and publisher CLI behavior |
+| `bun run marketplace:publish …` | Prepare, validate, reserve and submit immutable plugin releases through the API |
+| `bun run marketplace:migrate …` | Plan, check, explicitly import and verify the complete existing inventory |
+| `bun run marketplace:release:check …` | Check audited cutover inventory, public artifact integrity and release compatibility |
 
 ### Evaluating Motion packages
 
 Build the desktop, then start an isolated capture profile:
 
 ```sh
-pnpm --filter @open-pets/desktop build
-pnpm capture start --no-build --plugins ''
-pnpm capture control-center pets
+bun run --filter @open-pets/desktop build
+bun run capture start --no-build --plugins ''
+bun run capture control-center pets
 ```
 
 Import the Motion folder or bounded ZIP through Pets, then select it normally.
@@ -68,11 +68,11 @@ Once installed, the capture controls can select its stable package ID and send
 semantic reactions:
 
 ```sh
-pnpm capture pet select <pet-id>
-pnpm capture react waving
-pnpm capture react success
-pnpm capture react thinking
-pnpm capture stop
+bun run capture pet select <pet-id>
+bun run capture react waving
+bun run capture react success
+bun run capture react thinking
+bun run capture stop
 ```
 
 Motion packages contain `pet.json` and their declared `clips/` assets. Shared
@@ -98,13 +98,13 @@ catalog workflow for older app versions, not the marketplace publishing path.
 |---------|---------|
 | `openpets plugin new <name> --template <t>` | Scaffold an SDK v3 plugin |
 | `openpets plugin validate <dir>` | Validate a plugin locally |
-| `pnpm plugins:test` | Locale checks + official-plugin harness tests |
-| `pnpm plugins:check` | Dry-run the catalog package plan |
-| `pnpm plugins:package` | Build catalog + ZIP staging (no upload) |
-| `pnpm plugins:validate-release` | Pre-ship release gate |
-| `pnpm plugins:publish` | Upload ZIPs to R2 |
-| `pnpm plugins:validate-live` | Post-deploy live check |
-| `pnpm plugins:deploy` | Deploy the web catalog |
+| `bun run plugins:test` | Locale checks + official-plugin harness tests |
+| `bun run plugins:check` | Dry-run the catalog package plan |
+| `bun run plugins:package` | Build catalog + ZIP staging (no upload) |
+| `bun run plugins:validate-release` | Pre-ship release gate |
+| `bun run plugins:publish` | Upload ZIPs to R2 |
+| `bun run plugins:validate-live` | Post-deploy live check |
+| `bun run plugins:deploy` | Deploy the web catalog |
 
 See [Plugin platform](/plugins) for the authoring workflow and
 [Testing and validation](/testing-and-validation) for what the validators
@@ -112,7 +112,7 @@ catch.
 
 ## Running the desktop app
 
-- `pnpm dev:desktop` launches Electron against the TypeScript source with the
+- `bun run dev:desktop` launches Electron against the TypeScript source with the
   Vite renderer dev server.
 - On Linux, the desktop package entry runs a backend bootstrap before importing
   `main.ts`. An unflagged launch starts a replacement process directly with
@@ -142,20 +142,20 @@ catch.
 - Plugin authors using the installed app do not need this repo: open **Marketplace →
   Installed → Developer Mode → Load unpacked plugin folder** to validate, snapshot, watch, and
   reload a standalone plugin folder.
-- For plugin work, `pnpm dev:desktop:plugins` points the local loader at both
+- For plugin work, `bun run dev:desktop:plugins` points the local loader at both
   `plugins/official` and `plugins/dev` (via `OPENPETS_DEV_PLUGIN_ROOTS`) so
   official plugins and in-progress dev plugins hot-load when working on OpenPets
   itself.
-- `pnpm dev:desktop:third-parties` loads every direct child of `third-parties`
+- `bun run dev:desktop:third-parties` loads every direct child of `third-parties`
   that contains `openpets.plugin.json` through `OPENPETS_DEV_PLUGIN_ROOTS`, with
   the plugin catalog disabled. Non-plugin folders are ignored, and changes to a
   discovered plugin's manifest or entry file hot-reload it.
 - To open the Control Center on a route during development, set
    `OPENPETS_DEV_ROUTE` before starting the Control Center-focused dev command,
-   for example `OPENPETS_DEV_ROUTE=teams pnpm dev:desktop:control-center`.
+   for example `OPENPETS_DEV_ROUTE=teams bun run dev:desktop:control-center`.
    Use one of the canonical `ControlCenterRoute` values (`dashboard`, `pets`,
    `settings`, `plugins`, `integrations`, or `teams`). To open Settings directly
-   on its Providers subtab, use `OPENPETS_DEV_ROUTE=providers pnpm dev:desktop:control-center`.
+   on its Providers subtab, use `OPENPETS_DEV_ROUTE=providers bun run dev:desktop:control-center`.
    The variable is ignored by packaged builds.
 - Logs land in `userData/logs/openpets.log` (path varies by OS). Route renderer
   diagnostics into the app log, not just DevTools (per `AGENTS.md`).
@@ -218,7 +218,7 @@ provider or capture failure without exposing content.
 
 ### VS Code extension
 
-`pnpm vscode:check`, `pnpm vscode:build`, and `pnpm vscode:package` run from
+`bun run vscode:check`, `bun run vscode:build`, and `bun run vscode:package` run from
 the repository root. The package command uses the extension's `package:local`
 script (`vsce package --no-dependencies`) and produces a VSIX under
 `apps/vscode-extension/`. The build bundles extension code and includes its
@@ -238,10 +238,10 @@ for the release gates.
 
 ### npm packages
 
-`pnpm release:npm` (`scripts/release-npm.mjs`) determines the current public
+`bun run release:npm` (`scripts/release-npm.mjs`) determines the current public
 package set and publishes it in dependency order. Treat its printed dry-run plan
 as authoritative; do not maintain a hardcoded package list in documentation.
-For a live package release, the package gate (`pnpm check` and `pnpm test`) must
+For a live package release, the package gate (`bun run check` and `bun run test`) must
 pass first. A partial publish is retryable: re-run the same `--yes` command and
 already published versions are skipped. Never use `--skip-checks` for a live
 release.
@@ -250,12 +250,12 @@ For historical recovery from an existing release tag, use the tagged source
 explicitly:
 
 ```bash
-pnpm release:npm -- --yes --ref vX.Y.Z
+bun run release:npm -- --yes --ref vX.Y.Z
 ```
 
 ### Desktop app
 
-`pnpm release:desktop -- --yes` (`apps/desktop/scripts/release-local.mjs`) does a
+`bun run release:desktop -- --yes` (`apps/desktop/scripts/release-local.mjs`) does a
 macOS-local build + packaging, reaches the staged tag-promotion boundary,
 dispatches the production SignPath Windows workflow, waits for its signed
 artifact, and only then creates a draft GitHub release, verifies its complete
@@ -278,7 +278,7 @@ already dispatched. Checkpointed artifact outputs include SHA-256 content
 digests, so a same-size replacement becomes stale and is revalidated instead
 of being skipped. Inspect the plan with `--status`, force a redo with
 `--from <stage>`, and discard the checkpoint with `--reset`. Do not warm up with
-`pnpm release:desktop -- --dry-run`; it rebuilds the whole artifact set and
+`bun run release:desktop -- --dry-run`; it rebuilds the whole artifact set and
 throws it away, and the checkpoint already makes retries cheap. SignPath may
 pause for manual approval in its dashboard while the release script visibly
 waits.
@@ -298,7 +298,7 @@ before uploading it.
 ### Web catalog
 
 Pet and plugin catalog deploys run from `web/` with Bun (`bun run deploy`,
-`pnpm plugins:deploy`). Catalog generation/verification is in [Catalogs](/catalog)
+`bun run plugins:deploy`). Catalog generation/verification is in [Catalogs](/catalog)
 and the release gates are in [Testing and validation](/testing-and-validation)
 and [Release guide](/release).
 
@@ -341,7 +341,7 @@ are darwin-specific. Local, unpushed changes reach the guest only through
 Things that are easy to get wrong in these guests:
 
 - Electron 42 downloads its binary lazily on the first `require('electron')`,
-  not during `pnpm install`; `openpets-fix-sandbox` resolves it before making
+  not during `bun install`; `openpets-fix-sandbox` resolves it before making
   `chrome-sandbox` root-owned `4755`.
 - Commands started over SSH need the logged-in desktop's `DISPLAY`,
   `WAYLAND_DISPLAY`, `XAUTHORITY`, and D-Bus address; `openpets-session-env`

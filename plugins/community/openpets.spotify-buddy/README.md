@@ -112,7 +112,7 @@ Open **http://localhost:8765/login** in your browser. You'll be redirected to Sp
 
 ```bash
 # From the openpets repo root:
-OPENPETS_DEV_PLUGIN_PATHS=/absolute/path/to/openpets.spotify-buddy pnpm dev:desktop
+OPENPETS_DEV_PLUGIN_PATHS=/absolute/path/to/openpets.spotify-buddy bun run dev:desktop
 ```
 
 **Option B — Via env variable (persistent):**

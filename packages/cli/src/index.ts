@@ -878,7 +878,7 @@ export function scaffoldPlugin(options: PluginNewOptions): { readonly dir: strin
       "  1. npm install              # pulls @open-pets/plugin-sdk for types + the test kit\n" +
       "  2. npm test                 # deterministic harness, no app needed\n" +
       "  3. From the OpenPets repo root, run it live with hot reload:\n" +
-      `     OPENPETS_DEV_PLUGIN_PATHS=${targetDir} pnpm dev:desktop\n` +
+      `     OPENPETS_DEV_PLUGIN_PATHS=${targetDir} bun run dev:desktop\n` +
       "  4. Open Tray → Plugins, enable it, then right-click your pet.\n\n" +
       `Validate anytime: openpets plugin validate ${targetDir}\n` +
       "Docs: https://openpets.dev/sdk\n",
@@ -898,7 +898,7 @@ An OpenPets plugin (\`${options.id}\`).
 npm i -D @open-pets/plugin-sdk
 
 # from the OpenPets repo root, load this folder and launch the app
-OPENPETS_DEV_PLUGIN_PATHS=${targetDir} pnpm dev:desktop
+OPENPETS_DEV_PLUGIN_PATHS=${targetDir} bun run dev:desktop
 \`\`\`
 
 Then open **Tray → Plugins**, enable the plugin, and right-click your pet to

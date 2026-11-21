@@ -4,7 +4,7 @@ description: Take transparent, trimmed screenshots of the default pet in any plu
 
 # Screenshots
 
-`pnpm capture` runs a dev-only **capture session**: a separate OpenPets
+`bun run capture` runs a dev-only **capture session**: a separate OpenPets
 instance you start once, drive from the terminal (or by clicking the pet), and
 screenshot as often as you like. Every shot is a PNG of the default pet window
 with its real alpha channel, trimmed to the visible pet and bubble, padded
@@ -16,14 +16,14 @@ the pet's drop shadow, and bubble shadows stay clean on any background.
 ## Quick start
 
 ```sh
-pnpm capture start --plugins openpets.simple-timer   # build, launch, wait until ready
-pnpm capture cmd openpets.simple-timer timer-25      # put the plugin in a state
-pnpm capture shot simple-timer-running               # → web/lfs/captures/desktop/simple-timer-running.png
-pnpm capture stop
+bun run capture start --plugins openpets.simple-timer   # build, launch, wait until ready
+bun run capture cmd openpets.simple-timer timer-25      # put the plugin in a state
+bun run capture shot simple-timer-running               # → web/lfs/captures/desktop/simple-timer-running.png
+bun run capture stop
 ```
 
 `start` prints every loaded plugin with its command ids, so you can see what
-`cmd` can run. `pnpm capture status` prints the same list later (command ids
+`cmd` can run. `bun run capture status` prints the same list later (command ids
 change with plugin state; the timer only offers `pause-resume-timer` while one
 runs).
 
@@ -52,7 +52,7 @@ runs).
 | `run <scenario.json \| folder>` | Run a scripted scenario, or every scenario in a folder (below). |
 
 You can mix manual and scripted work: click through the pet's menu yourself to
-reach a state that has no command, then `pnpm capture shot <name>`. Plugins load
+reach a state that has no command, then `bun run capture shot <name>`. Plugins load
 from `plugins/official/` source with the dev watcher, so edit a plugin, run the
 command again, and re-shoot without restarting.
 
@@ -79,8 +79,8 @@ plugin, each in its own fresh session so pinned HUDs never overlap:
 | `virtual-pet.json` | stats HUD, after feeding |
 
 ```sh
-pnpm capture run scripts/capture-scenarios/simple-timer.json   # one scenario
-pnpm capture run scripts/capture-scenarios                      # all of them (~4 min)
+bun run capture run scripts/capture-scenarios/simple-timer.json   # one scenario
+bun run capture run scripts/capture-scenarios                      # all of them (~4 min)
 ```
 
 Fields: `plugins` (optional; restarts fresh with only these loaded), `out`
@@ -106,10 +106,10 @@ one-minute minimum, so their "finished" and "due" shots take about a minute.
 Chat replies need a real text provider, and the capture instance has its own
 profile, so configure the provider there once and keep that profile:
 
-1. `pnpm capture start --keep --plugins openpets.reminders,openpets.simple-timer`
+1. `bun run capture start --keep --plugins openpets.reminders,openpets.simple-timer`
 2. Open the capture instance's Control Center from its tray icon (the second
    OpenPets icon) and add the provider profile, e.g. OpenAI or OpenRouter.
-3. Shoot with `pnpm capture run scripts/capture-scenarios/chat/pet-assistant.json`.
+3. Shoot with `bun run capture run scripts/capture-scenarios/chat/pet-assistant.json`.
    That scenario sets `keepProfile`, so its restart keeps the provider, and
    runs `providers auto`, so a profile you added but never selected is used.
 
@@ -134,7 +134,7 @@ session covers the desktop side:
 
 ```sh
 cd teams && bun run dev:showcase          # keep running
-pnpm capture run scripts/capture-scenarios/teams/desktop.json
+bun run capture run scripts/capture-scenarios/teams/desktop.json
 ```
 
 The scenario sets `teamsApi`, so the capture instance talks to the showcase

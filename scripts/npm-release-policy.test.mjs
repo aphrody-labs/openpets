@@ -132,7 +132,7 @@ async function main() {
   );
   assertEqual(resolveReleaseTag({ version: "3.5.0", recovery: true }), "recovery-3-5-0", "historical default tag");
   assertEqual(resolveReleaseTag({ version: "3.5.0", recovery: true, requestedTag: "latest", tagWasExplicit: true }), "latest", "explicit historical latest tag");
-  assertEqual(recoveryInstallCommand(), ["pnpm", ["install", "--frozen-lockfile"]], "historical worktree dependency installation");
+  assertEqual(recoveryInstallCommand(), ["bun", ["install", "--frozen-lockfile"]], "historical worktree dependency installation");
   assertEqual(validateCurrentCheckoutState({ status: "", upstream: "origin/main", head: "commit", remoteHead: "commit" }), "commit", "current checkout validation");
   assertRejectsSync(
     () => validateCurrentCheckoutState({ status: " M release-npm.mjs", upstream: "origin/main", head: "commit", remoteHead: "commit" }),

@@ -1,0 +1,243 @@
+{
+  "id": "byron-love",
+  "displayName": "Byron Love",
+  "description": "Byron Love (Aphrodi Terumi), captain of Zeus in Inazuma Eleven. Renders from the LEVEL5 Inazuma Eleven: Victory Road character model.",
+  "sources": {
+    "r0": "https://dxi4wb638ujep.cloudfront.net/1/k/x/w/xw6ypvgrl_c_r0_fullbody.webp",
+    "r1": "https://dxi4wb638ujep.cloudfront.net/1/k/x/w/xw6ypvgrl_c_r1_fullbody.webp",
+    "r2": "https://dxi4wb638ujep.cloudfront.net/1/k/x/w/xw6ypvgrl_c_r2_fullbody.webp",
+    "r3": "https://dxi4wb638ujep.cloudfront.net/1/k/x/w/xw6ypvgrl_c_r3_fullbody.webp",
+    "r4": "https://dxi4wb638ujep.cloudfront.net/1/k/x/w/xw6ypvgrl_c_r4_fullbody.webp",
+    "r5": "https://dxi4wb638ujep.cloudfront.net/1/k/x/w/xw6ypvgrl_c_r5_fullbody.webp",
+    "r6": "https://dxi4wb638ujep.cloudfront.net/1/k/x/w/xw6ypvgrl_c_r6_fullbody.webp",
+    "r7": "https://dxi4wb638ujep.cloudfront.net/1/k/x/w/xw6ypvgrl_c_r7_fullbody.webp"
+  },
+  "margin": 6,
+  "states": {
+    "idle": [
+      {
+        "source": "r0"
+      },
+      {
+        "source": "r0",
+        "dy": -1
+      },
+      {
+        "source": "r7"
+      },
+      {
+        "source": "r0"
+      },
+      {
+        "source": "r1"
+      },
+      {
+        "source": "r0",
+        "dy": -1
+      }
+    ],
+    "running-right": [
+      {
+        "source": "r7"
+      },
+      {
+        "source": "r1",
+        "dy": -4,
+        "mirror": true
+      },
+      {
+        "source": "r7",
+        "dy": -6
+      },
+      {
+        "source": "r1",
+        "dy": -4,
+        "mirror": true
+      },
+      {
+        "source": "r7"
+      },
+      {
+        "source": "r1",
+        "dy": -4,
+        "mirror": true
+      },
+      {
+        "source": "r7",
+        "dy": -6
+      },
+      {
+        "source": "r1",
+        "dy": -4,
+        "mirror": true
+      }
+    ],
+    "running-left": [
+      {
+        "source": "r1"
+      },
+      {
+        "source": "r7",
+        "dy": -4,
+        "mirror": true
+      },
+      {
+        "source": "r1",
+        "dy": -6
+      },
+      {
+        "source": "r7",
+        "dy": -4,
+        "mirror": true
+      },
+      {
+        "source": "r1"
+      },
+      {
+        "source": "r7",
+        "dy": -4,
+        "mirror": true
+      },
+      {
+        "source": "r1",
+        "dy": -6
+      },
+      {
+        "source": "r7",
+        "dy": -4,
+        "mirror": true
+      }
+    ],
+    "waving": [
+      {
+        "source": "r0"
+      },
+      {
+        "source": "r1",
+        "dy": -2
+      },
+      {
+        "source": "r0"
+      },
+      {
+        "source": "r7",
+        "dy": -2
+      }
+    ],
+    "jumping": [
+      {
+        "source": "r0"
+      },
+      {
+        "source": "r0",
+        "dy": -12
+      },
+      {
+        "source": "r0",
+        "dy": -22
+      },
+      {
+        "source": "r0",
+        "dy": -12
+      },
+      {
+        "source": "r0"
+      }
+    ],
+    "failed": [
+      {
+        "source": "r3"
+      },
+      {
+        "source": "r4"
+      },
+      {
+        "source": "r5"
+      },
+      {
+        "source": "r4"
+      },
+      {
+        "source": "r3",
+        "dy": 2
+      },
+      {
+        "source": "r4",
+        "dy": 2
+      },
+      {
+        "source": "r5",
+        "dy": 2
+      },
+      {
+        "source": "r4",
+        "dy": 2
+      }
+    ],
+    "waiting": [
+      {
+        "source": "r0"
+      },
+      {
+        "source": "r7"
+      },
+      {
+        "source": "r6"
+      },
+      {
+        "source": "r6"
+      },
+      {
+        "source": "r7"
+      },
+      {
+        "source": "r0"
+      }
+    ],
+    "running": [
+      {
+        "source": "r7"
+      },
+      {
+        "source": "r0",
+        "dy": -5
+      },
+      {
+        "source": "r1"
+      },
+      {
+        "source": "r0",
+        "dy": -5
+      },
+      {
+        "source": "r7"
+      },
+      {
+        "source": "r0",
+        "dy": -5
+      }
+    ],
+    "review": [
+      {
+        "source": "r1"
+      },
+      {
+        "source": "r1",
+        "dy": -1
+      },
+      {
+        "source": "r0"
+      },
+      {
+        "source": "r7"
+      },
+      {
+        "source": "r7",
+        "dy": -1
+      },
+      {
+        "source": "r0"
+      }
+    ]
+  }
+}

@@ -96,8 +96,8 @@ async function main({ sourceRoot, selectedRef = null, selectedCommit = null, cur
   preflight({ sourceRoot, selectedRef, selectedCommit, packages, currentCheckoutHead });
 
   if (!options.skipChecks) {
-    run("pnpm", ["build"], { cwd: sourceRoot });
-    run("pnpm", ["check"], { cwd: sourceRoot });
+    run("bun", ["run", "build"], { cwd: sourceRoot });
+    run("bun", ["run", "check"], { cwd: sourceRoot });
   }
 
   const existing = await findAlreadyPublishedPackages(packages, sourceRoot);
@@ -173,7 +173,7 @@ function parseArgs(args) {
 }
 
 function preflight({ sourceRoot, selectedRef, selectedCommit, packages, currentCheckoutHead = null }) {
-  requireCommand("pnpm", ["--version"]);
+  requireCommand("bun", ["--version"]);
   requireCommand("npm", ["--version"]);
   if (options.yes && !options.dryRun) {
     run("npm", ["whoami", "--registry", npmRegistry], { cwd: repoRoot });
@@ -226,10 +226,10 @@ function isAlreadyPublished(existing, pkg) {
 }
 
 function publishPackage(pkg, tag, dryRun) {
-  const args = ["publish", "--access", "public", "--tag", tag, "--no-git-checks", "--registry", npmRegistry];
+  const args = ["publish", "--access", "public", "--tag", tag, "--registry", npmRegistry];
   if (dryRun) args.push("--dry-run");
   if (options.otp) args.push("--otp", options.otp);
-  run("pnpm", args, { cwd: pkg.packageDir });
+  run("bun", args, { cwd: pkg.packageDir });
 }
 
 function addDistTag(pkg, tag) {
@@ -362,15 +362,15 @@ function run(command, args, options) {
 }
 
 function printHelp() {
-  console.log(`Usage: pnpm release:npm -- --yes
+  console.log(`Usage: bun run release:npm -- --yes
 
 Publishes the public OpenPets npm packages in dependency order.
 The public package set and dependency order are discovered from workspace manifests.
 
 Options:
-  --yes            publish to npm; without this, runs pnpm publish --dry-run
+  --yes            publish to npm; without this, runs bun publish --dry-run
   --dry-run        force dry-run behavior even with --yes
-  --skip-checks    skip pnpm build and pnpm check
+  --skip-checks    skip bun run build and bun run check
   --tag <tag>      npm dist-tag to publish under (default: latest)
   --otp <code>     npm two-factor authentication one-time password
   --ref <vX.Y.Z>   recover from a trusted remote annotated tag in an isolated worktree

@@ -40,8 +40,8 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "test": "node dist/runtime.test.js && node dist/check-dsh.js",
-    "check": "pnpm typecheck && pnpm build && pnpm test",
+    "test": "bun dist/runtime.test.js && bun dist/check-dsh.js",
+    "check": "bun run typecheck && bun run build && bun run test",
     "typecheck": "tsc --noEmit",
     "build": "tsc"
   },

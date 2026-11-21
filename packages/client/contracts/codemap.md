@@ -8,14 +8,14 @@ Contains executable contract tests that validate protocol compliance, discovery 
 
 ## Design/Patterns
 
-**Contract Pattern**: Uses `*.contract.ts` naming and runs via `pnpm test` which builds and executes the contract file directly.
+**Contract Pattern**: Uses `*.contract.ts` naming and runs via `bun run test` which builds and executes the contract file directly.
 
 **Build Setup**: Separate TypeScript configuration (`tsconfig.tests.json`) compiles contracts to `.test-dist/` without declarations/sourcemaps.
 
 **Test Execution**: 
 ```bash
-pnpm test:build  # Compiles contracts + src to .test-dist/
-pnpm test        # Runs node .test-dist/contracts/client-protocol.contract.js
+bun run test:build  # Compiles contracts + src to .test-dist/
+bun run test        # Runs node .test-dist/contracts/client-protocol.contract.js
 ```
 
 ## Files
@@ -41,7 +41,7 @@ Runtime protocol validation (79 lines). Imports from `../src/` and asserts:
 
 **Source Dependencies**: Imports from `../src/discovery.js`, `../src/index.js`, `../src/protocol.js`
 
-**Test Command**: `pnpm test` in `packages/client/`
+**Test Command**: `bun run test` in `packages/client/`
 
 **Build Output**: `.test-dist/contracts/client-protocol.contract.js` (not published)
 

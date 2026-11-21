@@ -37,14 +37,14 @@ tests, not to use the desktop app's local folder loader.
 Run the suitable dev mode from the repository root:
 
 ```bash
-pnpm dev:desktop:plugins
+bun run dev:desktop:plugins
 ```
 
 This hot-loads `plugins/official` and `plugins/dev`. For third-party plugin
 folders placed directly under the repository's `third-parties/` directory, use:
 
 ```bash
-pnpm dev:desktop:third-parties
+bun run dev:desktop:third-parties
 ```
 
 These are repository-maintainer workflows. Do not prescribe their environment

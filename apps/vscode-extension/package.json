@@ -52,11 +52,11 @@
     }
   },
   "scripts": {
-    "build": "node scripts/build.mjs",
+    "build": "bun scripts/build.mjs",
     "check": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
     "test": "node --import tsx --test tests/*.test.ts",
-    "package:local": "pnpm build && vsce package --no-dependencies --allow-missing-repository"
+    "package:local": "bun run build && vsce package --no-dependencies --allow-missing-repository"
   },
   "dependencies": {
     "@open-pets/pet-format": "workspace:*",

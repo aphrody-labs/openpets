@@ -35,8 +35,8 @@
     }
   },
   "scripts": {
-    "test": "node dist/check-plugin-sdk.js",
-    "check": "pnpm typecheck && pnpm build && pnpm test",
+    "test": "bun dist/check-plugin-sdk.js",
+    "check": "bun run typecheck && bun run build && bun run test",
     "typecheck": "tsc --noEmit",
     "build": "tsc"
   },

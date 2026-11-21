@@ -38,8 +38,7 @@ try {
     releaseSucceeded: false,
     cleanupCompleted: false,
   }));
-  writeFileSync(join(fixtureRoot, "pnpm-workspace.yaml"), "packages:\n  - packages/*\n");
-  writeFileSync(join(fixtureRoot, "package.json"), JSON.stringify({ name: "fixture-root", private: true }));
+  writeFileSync(join(fixtureRoot, "package.json"), JSON.stringify({ name: "fixture-root", private: true, workspaces: ["packages/*"] }));
   writeFileSync(join(fixturePackage, "package.json"), JSON.stringify({
     name: "@fixture/package",
     version: "3.5.0",
@@ -56,7 +55,7 @@ try {
     copyFileSync(join(sourceScripts, filename), join(fixtureScripts, filename));
   }
   createFakeCommand("git", fakeGitSource());
-  createFakeCommand("pnpm", fakePnpmSource());
+  createFakeCommand("bun", fakeBunSource());
   createFakeCommand("npm", fakeNpmSource());
 
   const result = spawnSync(process.execPath, [join(fixtureScripts, "release-npm.mjs"), "--ref", "v3.5.0", "--dry-run", "--skip-checks"], {
@@ -82,7 +81,7 @@ try {
 
 function createFakeCommand(name, source) {
   const path = join(fakeBin, name);
-  writeFileSync(path, `#!/usr/bin/env node\n${source}`);
+  writeFileSync(path, `#!${process.execPath}\n${source}`);
   chmodSync(path, 0o755);
 }
 
@@ -202,7 +201,7 @@ function fail(message) {
 `;
 }
 
-function fakePnpmSource() {
+function fakeBunSource() {
   return `
 const { readFileSync, realpathSync, writeFileSync } = require("node:fs");
 const args = process.argv.slice(2);
@@ -210,8 +209,8 @@ const statePath = process.env.OPENPETS_RELEASE_STATE;
 const state = readState();
 
 if (args[0] === "--version") {
-  requireState(state.installed, "pnpm availability check requires the recovery install");
-  process.stdout.write("11.0.8\\n");
+  requireState(state.installed, "bun availability check requires the recovery install");
+  process.stdout.write("1.4.6\\n");
 } else if (args[0] === "install") {
   requireState(state.worktreeCreated, "dependency installation requires a recovery worktree");
   requireState(realpathSync(process.cwd()) === realpathSync(state.worktreePath), "dependency installation must run in the recovery worktree");
@@ -226,7 +225,7 @@ if (args[0] === "--version") {
   state.releaseSucceeded = true;
   saveState(state);
 } else {
-  fail("unexpected pnpm operation");
+  fail("unexpected bun operation");
 }
 
 function readState() {

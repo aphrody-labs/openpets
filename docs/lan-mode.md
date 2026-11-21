@@ -81,7 +81,7 @@ $env:OPENPETS_LAN_MODE="server"
 $env:OPENPETS_LAN_SERVER="http://127.0.0.1:3787"
 # Optional: set this to override the auto-generated server token
 $env:OPENPETS_LAN_TOKEN="choose-a-long-shared-secret"
-pnpm --filter @open-pets/desktop dev
+bun run --filter @open-pets/desktop dev
 ```
 
 Use this PC's LAN IP for other machines. Example: `http://192.168.1.37:3787`.
@@ -96,7 +96,7 @@ PowerShell:
 $env:OPENPETS_LAN_MODE="client"
 $env:OPENPETS_LAN_SERVER="http://192.168.1.37:3787"
 $env:OPENPETS_LAN_TOKEN="choose-a-long-shared-secret"
-pnpm --filter @open-pets/desktop dev
+bun run --filter @open-pets/desktop dev
 ```
 
 ## Optional topology
@@ -151,8 +151,8 @@ Test-NetConnection 192.168.1.37 -Port 3787
 LAN mode is included in the normal desktop main-process build. Validate with:
 
 ```powershell
-pnpm --filter @open-pets/desktop build
-pnpm --filter @open-pets/desktop package:dir
+bun run --filter @open-pets/desktop build
+bun run --filter @open-pets/desktop package:dir
 ```
 
 On Windows, packaging requires Developer Mode or an elevated shell because Electron Builder extracts a signing helper cache that contains symlinks. The `package` and `package:dir` scripts run a preflight check first so this fails early with an actionable message. The package output contract verifies the host-platform sharp native binary in local `package:dir` output and keeps workspace `supportedArchitectures` checks for release installs.

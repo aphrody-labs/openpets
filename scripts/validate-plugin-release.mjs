@@ -87,7 +87,7 @@ async function loadZip(entry) {
   if (useLive) return fetchBytes(entry.downloadUrl);
   const path = join(zipDir, `${entry.id}.zip`);
   if (!existsSync(path)) {
-    if (requireLocalZips) fail(`${entry.id}: missing local package zip at ${path}; run pnpm plugins:package first.`);
+    if (requireLocalZips) fail(`${entry.id}: missing local package zip at ${path}; run bun run plugins:package first.`);
     return undefined;
   }
   return readFile(path);

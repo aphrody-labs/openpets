@@ -22,7 +22,7 @@ failed. See [Staged desktop releases](#staged-desktop-releases).
 - GitHub repo: `OpenPetsHQ/openpets`
 - Desktop app: `apps/desktop`
 - Release script: `apps/desktop/scripts/release-local.mjs`
-- Root command: `pnpm release:desktop`
+- Root command: `bun run release:desktop`
 - SignPath Windows workflow: `.github/workflows/signpath-windows.yml`
 - Update checker expects GitHub release tags like `v2.0.0`.
 
@@ -45,15 +45,15 @@ An SDK or CLI contract change usually does.
 Required validation before a desktop release:
 
 ```bash
-pnpm --filter @open-pets/desktop check
-pnpm --filter @open-pets/desktop test
-pnpm plugins:locales
-pnpm --filter @open-pets/desktop package:dir
+bun run --filter @open-pets/desktop check
+bun run --filter @open-pets/desktop test
+bun run plugins:locales
+bun run --filter @open-pets/desktop package:dir
 ```
 
 Manual desktop QA:
 
-1. Run normal desktop dev startup or a packaged app (`pnpm dev:desktop` or the output from `pnpm --filter @open-pets/desktop package:dir`) so bundled seeding runs.
+1. Run normal desktop dev startup or a packaged app (`bun run dev:desktop` or the output from `bun run --filter @open-pets/desktop package:dir`) so bundled seeding runs.
 2. Open tray → Plugins.
 3. Confirm the bundled official plugins appear with translated names and
    descriptions. See [Official plugins](/official-plugins) for the current
@@ -68,7 +68,7 @@ Manual desktop QA:
 10. Restart desktop and confirm enabled plugins reload without broken state or duplicate timers/listeners.
 11. Inspect logs for plugin SDK, translation, permission, quota, and manifest validation errors.
 
-For explicit local plugin development, run `pnpm dev:desktop:plugins` separately and confirm official plugins are loaded as local dev plugins and start disabled; this mode intentionally skips bundled seeding.
+For explicit local plugin development, run `bun run dev:desktop:plugins` separately and confirm official plugins are loaded as local dev plugins and start disabled; this mode intentionally skips bundled seeding.
 
 ## Plugin catalog release checklist
 
@@ -84,31 +84,31 @@ Plugin catalog release includes:
 Required validation from the repository root:
 
 ```bash
-pnpm plugins:locales
-pnpm plugins:test
-pnpm plugins:check
-pnpm plugins:package
-pnpm --dir web generate
+bun run plugins:locales
+bun run plugins:test
+bun run plugins:check
+bun run plugins:package
+bun run --cwd web generate
 ```
 
 Publishing sequence:
 
 1. From the repository root, validate and stage local catalog/ZIP artifacts:
    ```bash
-   pnpm plugins:locales
-   pnpm plugins:test
-   pnpm plugins:check
-   pnpm plugins:package
+   bun run plugins:locales
+   bun run plugins:test
+   bun run plugins:check
+   bun run plugins:package
    ```
-2. Confirm `pnpm plugins:package` regenerated `web/public/plugins/catalog.v2.json` from the current official and community manifest v3 plugin lineup. Do not release if the checked-in v2 catalog still lists deprecated sample plugins instead of the current catalog.
+2. Confirm `bun run plugins:package` regenerated `web/public/plugins/catalog.v2.json` from the current official and community manifest v3 plugin lineup. Do not release if the checked-in v2 catalog still lists deprecated sample plugins instead of the current catalog.
 3. Confirm `web/public/plugins/catalog.v1.json` has `plugins: []` and does not expose stale legacy plugins.
 4. Upload plugin ZIPs to R2 and regenerate catalogs:
    ```bash
-   pnpm plugins:publish
+   bun run plugins:publish
    ```
 5. Deploy web:
    ```bash
-   pnpm plugins:deploy
+   bun run plugins:deploy
    ```
    If the local web deploy times out during the large static upload, commit and
    push both root and nested `web/` repos, then trigger the remote deploy helper:
@@ -160,8 +160,8 @@ older than an entry (for example a 4.0.1 dev build with a 4.1.0 entry) does not
 show it. Dismissing the dialog or clicking a link records the running version.
 
 To preview the dialog on any build, launch with `OPENPETS_WHATS_NEW_PREVIEW=1`
-(for example `OPENPETS_WHATS_NEW_PREVIEW=1 pnpm dev:desktop`, or prefix
-`pnpm capture start`). It then shows every entry each time Control Center opens.
+(for example `OPENPETS_WHATS_NEW_PREVIEW=1 bun run dev:desktop`, or prefix
+`bun run capture start`). It then shows every entry each time Control Center opens.
 
 ## Release mode and npm ordering
 
@@ -177,7 +177,7 @@ Choose the release mode before changing versions:
   desktop release tag and run the desktop release.
 
 The public npm package set is owned by the release tooling, not this document.
-Use the `pnpm release:npm` plan to inspect the current set and publish order; do
+Use the `bun run release:npm` plan to inspect the current set and publish order; do
 not copy a package list into a release issue or treat a hardcoded list as
 authoritative. The helper requires all packages in its current publish plan to
 use one shared stable version.
@@ -189,11 +189,11 @@ integration version.
 For a full shared-version release, the ordering is mandatory:
 
 1. Run the package and Desktop gates.
-2. Run `pnpm release:npm -- --yes` and allow it to publish every missing package
+2. Run `bun run release:npm -- --yes` and allow it to publish every missing package
    in its plan.
 3. Verify every package/version in that plan resolves from
    `https://registry.npmjs.org`.
-4. Start `pnpm release:desktop -- --yes` only after npm publication and
+4. Start `bun run release:desktop -- --yes` only after npm publication and
    verification succeed.
 
 Do not promote the desktop tag or publish its GitHub release while the npm gate
@@ -216,7 +216,7 @@ Consequences:
   emit a new exact npm package version, that version must already be published
   before the desktop release is published.
 - When the `@open-pets/opencode` or `@open-pets/openclaw` versions changed, run
-  `pnpm release:npm -- --yes` first, then the desktop release.
+  `bun run release:npm -- --yes` first, then the desktop release.
 - The desktop release enforces this with `--yes` verification stages that probe
   `https://registry.npmjs.org` for both exact specs. The early
   `verify:npm-integrations` stage runs before any artifact is built and re-runs
@@ -232,7 +232,7 @@ Consequences:
 
 ## Staged desktop releases
 
-`pnpm release:desktop -- --yes` runs preflight once, then executes an ordered
+`bun run release:desktop -- --yes` runs preflight once, then executes an ordered
 stage plan. After each stage succeeds, the script appends it to a checkpoint
 file:
 
@@ -266,7 +266,7 @@ unsigned or incomplete artifact set.
 | Stage | What it does |
 | --- | --- |
 | `verify:npm-integrations` | confirms exact `@open-pets/opencode` + `@open-pets/openclaw` versions exist on npm (`--yes` only, before any build; re-runs on every invocation, never checkpoint-skipped) |
-| `checks` | `pnpm build` and `pnpm --filter @open-pets/desktop check` |
+| `checks` | `bun run build` and `bun run --filter @open-pets/desktop check` |
 | `clean` | cleans `apps/desktop/dist-electron` (runs only once per checkpoint) |
 | `build:mac-dmg` | macOS DMG x64 + arm64 |
 | `build:mac-zip` | macOS ZIP x64 + arm64 |
@@ -286,7 +286,7 @@ unsigned or incomplete artifact set.
 | `verify:npm-pre-publish` | re-verifies the exact npm specs immediately before publication (`--yes` only, never checkpoint-skipped) |
 | `release:publish` | publishes the verified draft |
 
-Preflight still enforces macOS, `pnpm`/`gh` availability, GitHub CLI auth, an
+Preflight still enforces macOS, `bun`/`gh` availability, GitHub CLI auth, an
 `origin` pointing at `OpenPetsHQ/openpets`, a clean working tree, an upstream
 branch, `HEAD` matching upstream, and stable non-zero semver. It refuses an
 existing tag or release unless the checkpoint says this release already reached
@@ -299,7 +299,7 @@ tag stage a no-op if a checkpoint was lost after tagging.
 Re-run the identical command. Completed stages are skipped:
 
 ```bash
-pnpm release:desktop -- --yes
+bun run release:desktop -- --yes
 ```
 
 Two things make the resume trustworthy rather than merely fast:
@@ -324,7 +324,7 @@ unexpected artifact, so use `--reset` if you want a guaranteed clean rebuild.
 ### Inspecting and controlling stages
 
 ```bash
-pnpm release:desktop -- --yes --status
+bun run release:desktop -- --yes --status
 ```
 
 Prints the stage plan with `done`, `stale`, `pending`, or `always` for each
@@ -333,15 +333,15 @@ stage, plus the recorded SignPath run.
 Force a stage and everything after it to re-run:
 
 ```bash
-pnpm release:desktop -- --yes --from build:linux-rpm
-pnpm release:desktop -- --yes --from sign:dispatch
+bun run release:desktop -- --yes --from build:linux-rpm
+bun run release:desktop -- --yes --from sign:dispatch
 ```
 
 Use `--from sign:dispatch` when the recorded SignPath run itself failed and a
 fresh signing run is required. Discard the whole checkpoint with:
 
 ```bash
-pnpm release:desktop -- --reset
+bun run release:desktop -- --reset
 ```
 
 `--resume` remains as a legacy flag for resuming a tagged `HEAD` when no
@@ -356,7 +356,7 @@ Published releases are visible to the app update checker.
 Default command for every desktop release:
 
 ```bash
-pnpm release:desktop -- --yes
+bun run release:desktop -- --yes
 ```
 
 The final release artifact set always includes the full x64 artifact set. The
@@ -399,7 +399,7 @@ experimental ARM flag remains optional, and `--linux-package-dir` is available
 only for the validated Ubuntu DEB/RPM fallback described below:
 
 ```bash
-pnpm release:desktop -- --yes --include-experimental-arm
+bun run release:desktop -- --yes --include-experimental-arm
 ```
 
 On Apple Silicon macOS, Linux RPM packaging can fail in `fpm`/`rpmbuild`, and
@@ -512,7 +512,7 @@ After the workflow succeeds, the script downloads its `signed-openpets-windows-x
 If the initial signing step fails after the tag was pushed, do not delete the tag. Re-run the same command:
 
 ```bash
-pnpm release:desktop -- --yes
+bun run release:desktop -- --yes
 ```
 
 The checkpoint keeps the `tag` stage, so preflight accepts the existing tag, and the release resumes at the failed signing stage. If the SignPath run itself failed, the recorded run id is no longer usable and the script says so; dispatch a fresh signing run with `--from sign:dispatch`. If the tag push itself failed, push that existing local tag to origin first. The script never deletes tags automatically.
@@ -520,7 +520,7 @@ The checkpoint keeps the `tag` stage, so preflight accepts the existing tag, and
 When no checkpoint exists — for example the checkpoint file was deleted, or the release was started from another machine — use the legacy flag, which requires both local and origin `v<version>` tags to point to `HEAD`, accepts no release or a draft release, and refuses a published release:
 
 ```bash
-pnpm release:desktop -- --yes --resume
+bun run release:desktop -- --yes --resume
 ```
 
 For a narrowly scoped manual recovery when the script cannot dispatch the workflow, use the production dispatch shown above, download the named final artifact with `gh run download`, and use only its signed installer when repairing a draft release. Never upload the workflow's `SHA256SUMS.windows.txt` as a release asset, never upload a locally built unsigned Windows installer (including the optional ARM64 installer), and regenerate the release-wide `SHA256SUMS` after any replacement.
@@ -547,7 +547,7 @@ For a **desktop-only release** that changes only the Electron app and GitHub des
 Desktop-only releases may intentionally use a different version than the root workspace and public npm packages. The GitHub desktop release tag follows `apps/desktop/package.json`, and the app update checker reads GitHub Releases, not npm.
 
 For a full workspace/npm release, update the root, Desktop, and every package in
-the current `pnpm release:npm` publish plan together so bundled packages and npm
+the current `bun run release:npm` publish plan together so bundled packages and npm
 packages report the same release version. The release plan is authoritative for
 the public package set; do not maintain a second hardcoded file list here.
 
@@ -564,23 +564,23 @@ Set each top-level `version` field to the chosen version, for example:
 Run:
 
 ```bash
-pnpm install
+bun install
 ```
 
-If `pnpm-lock.yaml` changes, include it in the version bump commit.
+If `bun.lock` changes, include it in the version bump commit.
 
 ### 4. Run package and Desktop gates before committing
 
 Run:
 
 ```bash
-pnpm check
-pnpm test
-pnpm --filter @open-pets/desktop check
-pnpm --filter @open-pets/desktop test
+bun run check
+bun run test
+bun run --filter @open-pets/desktop check
+bun run --filter @open-pets/desktop test
 ```
 
-The package gate is `pnpm check` plus `pnpm test`; the Desktop gate is the
+The package gate is `bun run check` plus `bun run test`; the Desktop gate is the
 Desktop check and test commands above. Fix any failures before continuing.
 
 ### 5. Commit and push the version bump
@@ -594,7 +594,7 @@ git status --short
 Commit the version bump and any intentional release changes. For a desktop-only release, stage `apps/desktop/package.json` instead of every package manifest.
 
 ```bash
-git add package.json apps/desktop/package.json packages/*/package.json pnpm-lock.yaml
+git add package.json apps/desktop/package.json packages/*/package.json bun.lock
 git commit -m "release desktop v<version>"
 git push
 ```
@@ -624,8 +624,8 @@ version.
 Inspect the current dynamic package plan, then publish all missing packages:
 
 ```bash
-pnpm release:npm
-pnpm release:npm -- --yes
+bun run release:npm
+bun run release:npm -- --yes
 ```
 
 Verify every package/version reported by the plan through the public npm
@@ -637,7 +637,7 @@ For historical recovery, when the package versions come from an existing tag
 instead of the current `HEAD`, use:
 
 ```bash
-pnpm release:npm -- --yes --ref vX.Y.Z
+bun run release:npm -- --yes --ref vX.Y.Z
 ```
 
 This is a recovery path for that tagged release, not a way to bypass the package
@@ -645,7 +645,7 @@ gate or publish a mixed-version set.
 
 ### 8. Do not dry run the desktop release
 
-**Do not run `pnpm release:desktop -- --dry-run` as a warm-up.** A dry run builds
+**Do not run `bun run release:desktop -- --dry-run` as a warm-up.** A dry run builds
 the full macOS and Linux artifact set, which is the slowest part of a release,
 and then stops without tagging or publishing. Since the dry run and the real
 release are separate invocations of the same build stages, the time is spent
@@ -674,7 +674,7 @@ The release script requires a clean tree before release creation.
 For the standard full-artifact desktop release:
 
 ```bash
-pnpm release:desktop -- --yes
+bun run release:desktop -- --yes
 ```
 
 The script works through the stage plan: it builds locally while the tag does not
@@ -700,7 +700,7 @@ signing or upload failure leaves the tag pushed, recover by re-running the same
 command:
 
 ```bash
-pnpm release:desktop -- --yes
+bun run release:desktop -- --yes
 ```
 
 The checkpoint skips the finished stages and resumes at the failed one. Inspect
@@ -772,9 +772,9 @@ git push
 ### Tag or release already exists
 
 For a normal release, use a new version after inspecting GitHub. If this is a
-failed release attempt, re-run `pnpm release:desktop -- --yes`; the checkpoint
+failed release attempt, re-run `bun run release:desktop -- --yes`; the checkpoint
 recognises the tag it created. If the checkpoint is gone and local/origin
-`v<version>` both point to `HEAD`, use `pnpm release:desktop -- --yes --resume`.
+`v<version>` both point to `HEAD`, use `bun run release:desktop -- --yes --resume`.
 Do not delete tags automatically.
 
 ### Partial GitHub upload failure or replacing an existing release's assets
@@ -788,7 +788,7 @@ what is actually missing. If an upload fails:
 2. Re-run the same command:
 
 ```bash
-pnpm release:desktop -- --yes
+bun run release:desktop -- --yes
 ```
 
 3. Re-check the release asset list; do not trust a wrapper's success summary if
@@ -806,12 +806,12 @@ GitHub Actions workflow; test the signed workflow or release artifact instead
 of building a disposable local x64 installer.
 
 ```bash
-pnpm --filter @open-pets/desktop build
+bun run --filter @open-pets/desktop build
 node apps/desktop/scripts/clean-package-output.cjs
-pnpm --dir apps/desktop exec electron-builder --mac dmg --x64 --publish never
-pnpm --dir apps/desktop exec electron-builder --mac dmg --arm64 --publish never
-pnpm --dir apps/desktop exec electron-builder --linux AppImage --x64 --publish never
-pnpm --dir apps/desktop exec electron-builder --linux rpm --x64 --publish never
+bun run --cwd apps/desktop exec electron-builder --mac dmg --x64 --publish never
+bun run --cwd apps/desktop exec electron-builder --mac dmg --arm64 --publish never
+bun run --cwd apps/desktop exec electron-builder --linux AppImage --x64 --publish never
+bun run --cwd apps/desktop exec electron-builder --linux rpm --x64 --publish never
 ```
 
 Artifacts are written to:
@@ -856,7 +856,7 @@ infra/linux-vms/vm ssh gnome -c 'set -e; sudo apt-get update; sudo apt-get insta
 Build only the Linux package targets in the guest:
 
 ```bash
-infra/linux-vms/vm ssh gnome -c 'set -e; cd ~/src/openpets; pnpm install --frozen-lockfile; pnpm --filter @open-pets/desktop build; cd apps/desktop; node scripts/clean-package-output.cjs; pnpm exec electron-builder --linux deb --x64 --publish never; pnpm exec electron-builder --linux rpm --x64 --publish never; ls -lh dist-electron/OpenPets-<version>-linux-amd64.deb dist-electron/OpenPets-<version>-linux-x86_64.rpm; file dist-electron/OpenPets-<version>-linux-amd64.deb dist-electron/OpenPets-<version>-linux-x86_64.rpm'
+infra/linux-vms/vm ssh gnome -c 'set -e; cd ~/src/openpets; bun install --frozen-lockfile; bun run --filter @open-pets/desktop build; cd apps/desktop; node scripts/clean-package-output.cjs; bunx electron-builder --linux deb --x64 --publish never; bunx electron-builder --linux rpm --x64 --publish never; ls -lh dist-electron/OpenPets-<version>-linux-amd64.deb dist-electron/OpenPets-<version>-linux-x86_64.rpm; file dist-electron/OpenPets-<version>-linux-amd64.deb dist-electron/OpenPets-<version>-linux-x86_64.rpm'
 ```
 
 Copy the valid artifacts to an absolute host staging directory. Do not put them
@@ -878,7 +878,7 @@ Run the complete release flow with the staging directory. Do not precede it with
 a dry run:
 
 ```bash
-pnpm release:desktop -- --yes --linux-package-dir "$STAGING_DIR"
+bun run release:desktop -- --yes --linux-package-dir "$STAGING_DIR"
 ```
 
 This is normally a resume: the macOS, AppImage, and tar.gz artifacts built before
@@ -968,8 +968,8 @@ The equivalent local build command, which on macOS needs a Windows VM for
 `makeappx.exe`:
 
 ```bash
-pnpm --filter @open-pets/desktop build
-pnpm --filter @open-pets/desktop exec electron-builder --win appx --x64 \
+bun run --filter @open-pets/desktop build
+bun run --filter @open-pets/desktop exec electron-builder --win appx --x64 \
   -c.appx.identityName=AlvinUnreal.OpenPetsDesktopCompanion \
   -c.appx.publisher=CN=5749BA4D-6A45-4111-8CAA-6B151AEDC238 \
   -c.appx.publisherDisplayName=AlvinUnreal \
@@ -1074,12 +1074,12 @@ before publishing.
 Dry-run npm publishing first:
 
 ```bash
-pnpm release:npm
+bun run release:npm
 ```
 
 Publish all missing packages to npm. Package versions that already exist on npm
 are skipped automatically, so a failed partial publish can be retried safely.
-The helper pins its npm authentication check, registry probes, and `pnpm publish`
+The helper pins its npm authentication check, registry probes, and `bun publish`
 commands to `https://registry.npmjs.org`. Registry, process, network, and
 authentication failures stop the release rather than being treated as missing
 packages. npm can take time to expose a newly written package version or
@@ -1089,13 +1089,13 @@ minutes. It still aborts on an actual registry, process, or authentication
 failure:
 
 ```bash
-pnpm release:npm -- --yes
+bun run release:npm -- --yes
 ```
 
 If npm requires two-factor auth:
 
 ```bash
-pnpm release:npm -- --yes --otp <code>
+bun run release:npm -- --yes --otp <code>
 ```
 
 Publishing with the npm helper requires `npm whoami --registry https://registry.npmjs.org` to succeed, a clean working tree, and local `HEAD` to match the upstream branch.

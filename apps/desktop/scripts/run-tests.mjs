@@ -37,9 +37,6 @@ function logDiscoveredArtifacts(label, artifacts) {
 }
 
 function commandForPlatform(command, args) {
-  if (process.platform === "win32" && command === "pnpm") {
-    return { command: "cmd.exe", args: ["/d", "/s", "/c", "pnpm.cmd", ...args] };
-  }
   return { command, args };
 }
 
@@ -78,12 +75,12 @@ async function main() {
 
   // 1. Preload syntax checks
   console.log("\n[1/5] Checking preload syntax...");
-  await run("pnpm", ["build:preload"]);
+  await run("bun", ["run", "build:preload"]);
   for (const preload of preloadChecks) await run("node", ["--check", preload]);
 
   // 2. Build tests
   console.log("\n[2/5] Building tests...");
-  await run("pnpm", ["test:build"]);
+  await run("bun", ["run", "test:build"]);
   await assertArtifactsExist("behavior test", behaviorTests);
   await assertArtifactsExist("contract test", contractTests);
 
@@ -103,10 +100,10 @@ async function main() {
 
   // 5. Run remaining dist checks
   console.log("\n[5/5] Running dist checks...");
-  // Rebuild the full app (main + renderer), not just main: `pnpm release:desktop`
+  // Rebuild the full app (main + renderer), not just main: `bun run release:desktop`
   // packages dist/ right after `check`, and v4.0.0 shipped without dist/renderer.
   await rm(join(rootDir, "dist"), { force: true, recursive: true });
-  await run("pnpm", ["build"]);
+  await run("bun", ["run", "build"]);
   await assertArtifactsExist("dist check", distChecks);
   for (const check of distChecks) {
     console.log(`- ${relativePath(rootDir, check)}`);

@@ -427,7 +427,7 @@ The one-time What's new dialog (`apps/desktop/src/whats-new.ts`, see
 - `web/scripts/lib/wardrobe.test.js` — base ZIP drops outfits and the
   manifest wardrobe, wardrobe ZIP carries exactly the declared outfits,
   manifest/archive agreement both ways, content-hash naming, catalog fields.
-- Manual: `pnpm capture` (isolated profile, see [Screenshots](/screenshots))
+- Manual: `bun run capture` (isolated profile, see [Screenshots](/screenshots))
   with a wardrobe pet copied into `.capture/session/profile/pets/` lets you
   check the pet window, the Wardrobe panel, and the rule editor without
   touching your real profile.

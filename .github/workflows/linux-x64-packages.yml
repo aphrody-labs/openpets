@@ -9,8 +9,7 @@ on:
       - "plugins/official/**"
       - "scripts/**"
       - "package.json"
-      - "pnpm-lock.yaml"
-      - "pnpm-workspace.yaml"
+      - "bun.lock"
   workflow_dispatch:
 
 permissions:
@@ -37,7 +36,7 @@ jobs:
           mkdir -p diagnostics
           source_sha="$(git rev-parse HEAD)"
           source_short_sha="$(git rev-parse --short=12 HEAD)"
-          lockfile_sha="$(sha256sum pnpm-lock.yaml | cut -d ' ' -f 1)"
+          lockfile_sha="$(sha256sum bun.lock | cut -d ' ' -f 1)"
           version="$(node -p "require('./apps/desktop/package.json').version")"
           {
             printf 'Source commit: `%s`\n\n' "$source_sha"
@@ -73,28 +72,25 @@ jobs:
             libxfixes3 libxkbcommon0 libxrandr2 libxrender1 libxtst6 \
             2>&1 | tee diagnostics/apt-install.log
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 11.0.8
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: pnpm
-
+          
       - name: Install workspace dependencies
         shell: bash
         run: |
           set -euo pipefail
-          pnpm install --frozen-lockfile 2>&1 | tee diagnostics/install.log
+          bun run install:release 2>&1 | tee diagnostics/install.log
 
       - name: Check desktop
         shell: bash
         run: |
           set -euo pipefail
-          pnpm --filter @open-pets/desktop check 2>&1 | tee diagnostics/desktop-check.log
+          bun run --filter @open-pets/desktop check 2>&1 | tee diagnostics/desktop-check.log
 
       - name: Clean package output
         shell: bash
@@ -106,14 +102,14 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          pnpm --dir apps/desktop exec electron-builder --linux AppImage deb rpm tar.gz --x64 --publish never \
+          bun run --cwd apps/desktop exec electron-builder --linux AppImage deb rpm tar.gz --x64 --publish never \
             2>&1 | tee diagnostics/package-build.log
 
       - name: Validate Linux x64 packages
         shell: bash
         run: |
           set -euo pipefail
-          node apps/desktop/scripts/validate-linux-x64-packages.mjs apps/desktop/dist-electron \
+          bun apps/desktop/scripts/validate-linux-x64-packages.mjs apps/desktop/dist-electron \
             2>&1 | tee diagnostics/package-validation.log
 
       - name: Smoke-test Linux x64 DEB
@@ -144,9 +140,9 @@ jobs:
             printf 'Workflow ref: %s\n' "$GITHUB_REF"
             printf 'Workflow run: %s\n' "$workflow_url"
             printf 'Workflow run attempt: %s\n' "$GITHUB_RUN_ATTEMPT"
-            printf 'Lockfile SHA-256: %s\n' "$(sha256sum pnpm-lock.yaml | cut -d ' ' -f 1)"
+            printf 'Lockfile SHA-256: %s\n' "$(sha256sum bun.lock | cut -d ' ' -f 1)"
             printf 'Node.js version: %s\n' "$(node --version)"
-            printf 'pnpm version: %s\n' "$(pnpm --version)"
+            printf 'bun run version: %s\n' "$(bun --version)"
             printf 'Runner OS: %s\n' "$RUNNER_OS"
             printf 'Runner architecture: %s\n' "$RUNNER_ARCH"
             printf 'Runner image: %s %s\n' "${ImageOS:-unknown}" "${ImageVersion:-unknown}"

@@ -86,10 +86,10 @@
     }
   },
   "scripts": {
-    "check": "pnpm typecheck",
+    "check": "bun run typecheck",
     "typecheck": "tsc --noEmit",
     "build": "tsc",
-    "test": "pnpm build && node --test tests/*.test.mjs"
+    "test": "bun run build && bun test tests/*.test.mjs"
   },
   "dependencies": {
     "install-pet": "workspace:*",

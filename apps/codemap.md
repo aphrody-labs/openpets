@@ -2,11 +2,11 @@
 
 ## Responsibility
 
-Container for application packages selected by the pnpm workspace `apps/*` glob: the Electron desktop app and a standalone VS Code extension foundation. The extension is a preview shell, not the full released product.
+Container for application packages selected by the Bun workspace `apps/*` glob: the Electron desktop app and a standalone VS Code extension foundation. The extension is a preview shell, not the full released product.
 
 ## Design Patterns
 
-- **Workspace App Boundary**: `pnpm-workspace.yaml` includes `apps/*`, so each app directory is an independently buildable workspace package.
+- **Workspace App Boundary**: `package.json` `workspaces` includes `apps/*`, so each app directory is an independently buildable workspace package.
 - **Workspace Dependencies**: apps consume shared `packages/` modules through `workspace:*` dependencies.
 - **Electron-First Architecture**: the desktop app uses an Electron main process, tray-centric UX, and isolated renderer windows rather than a traditional main window.
 - **Service-Oriented Desktop Modules**: desktop features are split into main-process services for state, IPC, pet controllers, catalog installation, setup flows, and plugin management/runtime.
@@ -15,7 +15,7 @@ Container for application packages selected by the pnpm workspace `apps/*` glob:
 
 ## Data & Control Flow
 
-1. Workspace tooling discovers application packages via the `apps/*` pnpm workspace glob.
+1. Workspace tooling discovers application packages via the `apps/*` Bun workspace glob.
 2. The desktop app bootstraps from `apps/desktop/src/main.ts`, initializes user data and app state, then creates tray and renderer windows.
 3. Agent commands flow through the local IPC server into lease-managed pet controllers and window updates.
 4. Pet assets flow from built-in assets, local development sources, or downloaded catalog packages into installation/state services and renderer windows.

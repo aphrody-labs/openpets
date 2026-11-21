@@ -527,7 +527,7 @@ symlink/path/size protections. In the installed desktop app, authors use
 original source folder, watches it, and re-snapshots/reloads after edits. The
 repo dev build still supports maintainer-only env paths with
 `OPENPETS_DEV_PLUGIN_ROOTS` / `OPENPETS_DEV_PLUGIN_PATHS` and
-`pnpm dev:desktop:plugins`. See [Development](/development).
+`bun run dev:desktop:plugins`. See [Development](/development).
 
 ## Pet menu rules
 
@@ -600,10 +600,10 @@ each state.
 4. **Validate**: `openpets plugin validate <dir>` checks manifest, permissions,
    SDK compatibility, config field types, network hosts, asset formats/size
    caps, entry files, and HTML panels. (`packages/cli/src/plugin-validate.ts`.)
-5. **Package**: `pnpm marketplace:publish prepare <dir> <package.zip>` validates
+5. **Package**: `bun run marketplace:publish prepare <dir> <package.zip>` validates
    the exact package using the same manifest/assets rules as the desktop.
 6. **Submit**: use the website's Publisher Hub or
-   `pnpm marketplace:publish submit <package.zip> --metadata <metadata.json>`.
+   `bun run marketplace:publish submit <package.zip> --metadata <metadata.json>`.
    The CLI uses `OPENPETS_STUDIO_API_URL` and `OPENPETS_STUDIO_TOKEN`; submission
    creates a pending immutable release, never an automatic approval.
 7. **Review**: an administrator inspects and approves each exact version. Listing
@@ -626,14 +626,14 @@ steps in [Release guide](/release). The command surface (run from repo root):
 
 | Command | Purpose |
 |---------|---------|
-| `pnpm plugins:check` | Validate the package plan (dry-run, no writes) |
-| `pnpm plugins:package` | Write local catalog files + ZIP staging (no R2 upload) |
-| `pnpm plugins:validate-release` | **Release gate** - catch production-breaking mistakes before shipping |
-| `pnpm plugins:publish` | Generate + upload ZIPs to R2 |
-| `pnpm plugins:validate-live` | Post-deploy validation against the live catalog |
-| `pnpm plugins:deploy` | Deploy the web catalog |
-| `pnpm plugins:release` | Full package → validate → publish → deploy → live-validate sequence |
-| `pnpm plugins:test` | Run plugin locale checks + official/community plugin harness tests |
+| `bun run plugins:check` | Validate the package plan (dry-run, no writes) |
+| `bun run plugins:package` | Write local catalog files + ZIP staging (no R2 upload) |
+| `bun run plugins:validate-release` | **Release gate** - catch production-breaking mistakes before shipping |
+| `bun run plugins:publish` | Generate + upload ZIPs to R2 |
+| `bun run plugins:validate-live` | Post-deploy validation against the live catalog |
+| `bun run plugins:deploy` | Deploy the web catalog |
+| `bun run plugins:release` | Full package → validate → publish → deploy → live-validate sequence |
+| `bun run plugins:test` | Run plugin locale checks + official/community plugin harness tests |
 
 The release validator exists to catch exactly the production-breakers
 `plugins:check` alone misses: unresolved `$t:` names/descriptions in catalog

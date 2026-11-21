@@ -26,8 +26,8 @@
     }
   },
   "scripts": {
-    "test": "node dist/check-claude-code.js && node dist/check-claude-hooks.js",
-    "check": "pnpm typecheck && pnpm build && pnpm test",
+    "test": "bun dist/check-claude-code.js && bun dist/check-claude-hooks.js",
+    "check": "bun run typecheck && bun run build && bun run test",
     "typecheck": "tsc --noEmit",
     "build": "tsc"
   },

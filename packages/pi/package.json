@@ -42,9 +42,9 @@
     ]
   },
   "scripts": {
-    "test": "node dist/check-pi.js && node dist/check-pi-compat.js",
-    "prepack": "pnpm build",
-    "check": "pnpm typecheck && pnpm build && pnpm test",
+    "test": "bun dist/check-pi.js && bun dist/check-pi-compat.js",
+    "prepack": "bun run build",
+    "check": "bun run typecheck && bun run build && bun run test",
     "typecheck": "tsc --noEmit",
     "build": "tsc"
   },

@@ -23,16 +23,16 @@
     }
   },
   "scripts": {
-    "test": "pnpm test:build && node .test-dist/contracts/client-protocol.contract.js",
+    "test": "bun run test:build && bun .test-dist/contracts/client-protocol.contract.js",
     "test:build": "tsc -p tsconfig.tests.json",
-    "check": "pnpm typecheck && pnpm build && pnpm test",
+    "check": "bun run typecheck && bun run build && bun run test",
     "typecheck": "tsc --noEmit",
     "build": "tsc",
-    "smoke": "pnpm build && node dist/smoke.js",
-    "smoke:status": "pnpm smoke status",
-    "smoke:react": "pnpm smoke react",
-    "smoke:say": "pnpm smoke say",
-    "smoke:invalid-token": "pnpm smoke invalid-token"
+    "smoke": "bun run build && bun dist/smoke.js",
+    "smoke:status": "bun run smoke status",
+    "smoke:react": "bun run smoke react",
+    "smoke:say": "bun run smoke say",
+    "smoke:invalid-token": "bun run smoke invalid-token"
   },
   "devDependencies": {
     "@types/node": "^25.6.2",

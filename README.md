@@ -209,40 +209,40 @@ For contributing to the OpenPets codebase, testing changes, or building the desk
 
 ### Prerequisites
 - **Node.js**: version 20 or higher
-- **pnpm**: version 11 or higher
+- **Bun**: version 1.4.6 or higher
 - **TypeScript**: compiler support
 
 ### Commands
 
 Install project workspace dependencies:
 ```bash
-pnpm install
+bun install
 ```
 
 Launch the Electron application in local developer mode:
 ```bash
-pnpm dev:desktop
+bun run dev:desktop
 ```
 
 Launch with live official plugins loaded and monitored:
 ```bash
-pnpm dev:desktop:plugins
+bun run dev:desktop:plugins
 ```
 
 Run workspace typechecking, code-conformance validations, and tests:
 ```bash
-pnpm check
-pnpm typecheck
-pnpm test
+bun run check
+bun run typecheck
+bun run test
 ```
 
 Package the desktop application:
 ```bash
 # Build & package into target OS directory
-pnpm package:desktop:dir
+bun run package:desktop:dir
 
 # Build & package into final installer / setup archives
-pnpm package:desktop
+bun run package:desktop
 ```
 
 ### Workspace Structure

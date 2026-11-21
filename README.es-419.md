@@ -200,40 +200,40 @@ Para contribuir a la base de código de OpenPets, probar cambios o compilar loca
 
 ### Requisitos previos
 - **Node.js**: versión 20 o superior
-- **pnpm**: versión 11 o superior
+- **Bun**: versión 1.4.6 o superior
 - **TypeScript**: soporte de compilador
 
 ### Comandos
 
 Instala las dependencias del espacio de trabajo del proyecto:
 ```bash
-pnpm install
+bun install
 ```
 
 Inicia la aplicación de Electron en modo de desarrollo local:
 ```bash
-pnpm dev:desktop
+bun run dev:desktop
 ```
 
 Inicia con los plugins oficiales cargados y supervisados en tiempo real:
 ```bash
-pnpm dev:desktop:plugins
+bun run dev:desktop:plugins
 ```
 
 Ejecuta la verificación de tipos del espacio de trabajo, validaciones de conformidad del código y pruebas:
 ```bash
-pnpm check
-pnpm typecheck
-pnpm test
+bun run check
+bun run typecheck
+bun run test
 ```
 
 Empaqueta la aplicación de escritorio:
 ```bash
 # Compila y empaqueta en el directorio del sistema operativo objetivo
-pnpm package:desktop:dir
+bun run package:desktop:dir
 
 # Compila y empaqueta en los archivos de instalación / instalador final
-pnpm package:desktop
+bun run package:desktop
 ```
 
 ### Estructura del espacio de trabajo

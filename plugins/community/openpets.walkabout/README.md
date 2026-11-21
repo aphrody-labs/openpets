@@ -41,9 +41,9 @@ Point the OpenPets app at this folder via the `OPENPETS_DEV_PLUGIN_PATHS` env va
 OPENPETS_DEV_PLUGIN_PATHS=/Users/GTN473/repos/pets/openpets/plugins/dev/openpets.walkabout \
   open -a OpenPets
 
-# Dev build (from repo root — requires pnpm)
+# Dev build (from repo root — requires Bun)
 OPENPETS_DEV_PLUGIN_PATHS=/Users/GTN473/repos/pets/openpets/plugins/dev/openpets.walkabout \
-  pnpm dev:desktop
+  bun run dev:desktop
 ```
 
 The plugin will be auto-approved in dev mode — no permission dialog.

@@ -14,7 +14,7 @@ Root source workspace for first-party OpenPets plugins. It contains reviewed plu
 ## Data & Control Flow
 
 1. A developer edits an official plugin folder under `plugins/official/{pluginId}/`.
-2. `pnpm dev:desktop:plugins` points desktop dev mode at `plugins/official`; `plugin-local-loader.ts` validates folders and snapshots manifests for hot reload.
+2. `bun run dev:desktop:plugins` points desktop dev mode at `plugins/official`; `plugin-local-loader.ts` validates folders and snapshots manifests for hot reload.
 3. `apps/desktop/src/plugin-service.ts` loads approved manifests, and `plugin-runtime.ts` starts each JavaScript entry through the sandboxed plugin host.
 4. Plugin code calls SDK namespaces (`ctx.ui`, `ctx.pet`, `ctx.schedule`, `ctx.storage`, `ctx.commands`, `ctx.assets`, `ctx.t`, etc.); the desktop bridge validates permissions and renders host-owned effects.
 5. Release tooling packages each plugin's manifest, entry, declared assets, panels, and locales into deterministic ZIP/catalog output for reviewed distribution.

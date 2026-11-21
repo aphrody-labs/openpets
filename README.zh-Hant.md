@@ -200,40 +200,40 @@ npm test
 
 ### 先決條件
 - **Node.js**：版本 20 或更高
-- **pnpm**：版本 11 或更高
+- **Bun**：版本 1.4.6 或更高
 - **TypeScript**：編譯器支援
 
 ### 指令
 
 安裝專案工作空間相依性：
 ```bash
-pnpm install
+bun install
 ```
 
 在本地開發模式下啟動 Electron 應用程式：
 ```bash
-pnpm dev:desktop
+bun run dev:desktop
 ```
 
 啟動並載入與監控即時的官方外掛程式：
 ```bash
-pnpm dev:desktop:plugins
+bun run dev:desktop:plugins
 ```
 
 執行工作空間類型檢查、程式碼合規性驗證及測試：
 ```bash
-pnpm check
-pnpm typecheck
-pnpm test
+bun run check
+bun run typecheck
+bun run test
 ```
 
 封裝桌面應用程式：
 ```bash
 # 建置並封裝至目標作業系統的目錄中
-pnpm package:desktop:dir
+bun run package:desktop:dir
 
 # 建置並封裝成最終的安裝程式 / 安裝封存檔
-pnpm package:desktop
+bun run package:desktop
 ```
 
 ### 工作空間結構

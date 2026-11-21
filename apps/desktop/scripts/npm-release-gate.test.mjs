@@ -188,7 +188,7 @@ async function main() {
   // Gate: confirmed E404 fails naming package/version with publish guidance.
   assertThrowsWith(
     () => verifyPackagedNpmIntegrations({ repoRoot, probe: () => ({ outcome: "missing", detail: "no match" }) }),
-    [/@open-pets\/opencode@/, /@open-pets\/openclaw@/, /pnpm release:npm/],
+    [/@open-pets\/opencode@/, /@open-pets\/openclaw@/, /bun run release:npm/],
     "missing specs",
   );
 
@@ -211,7 +211,7 @@ async function main() {
     [/@open-pets\/opencode@/, /socket hang up/, /registry check failed/],
     "mixed failure",
   );
-  assertMatch(mixedMessage, /pnpm release:npm/, "mixed failure keeps publish guidance");
+  assertMatch(mixedMessage, /bun run release:npm/, "mixed failure keeps publish guidance");
 
   console.log("npm release gate invariants passed.");
 }

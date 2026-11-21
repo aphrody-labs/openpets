@@ -177,8 +177,8 @@ function createStagePlan(context, state) {
       id: "checks",
       title: "Workspace build and desktop checks",
       run: () => {
-        run("pnpm", ["build"], { cwd: repoRoot });
-        run("pnpm", ["--filter", "@open-pets/desktop", "check"], { cwd: repoRoot });
+        run("bun", ["run", "build"], { cwd: repoRoot });
+        run("bun", ["run", "--filter", "@open-pets/desktop", "check"], { cwd: repoRoot });
         return [];
       },
     });
@@ -200,7 +200,7 @@ function createStagePlan(context, state) {
       title: build.name,
       run: () => {
         validatePackagedOutput(build);
-        run("pnpm", ["exec", "electron-builder", ...build.args, "--publish", "never"], { cwd: desktopDir });
+        run("bunx", ["electron-builder", ...build.args, "--publish", "never"], { cwd: desktopDir });
         const outputs = build.outputs.map(artifactPath);
         for (const output of outputs) requireBuiltArtifact(output, build.name, build.minimumBytes);
         validatePackagedArtifacts(outputs, build.artifactTargets);
@@ -529,7 +529,7 @@ function preflight(state) {
   if (!isStableSemver(version) || version === "0.0.0") {
     throw new Error(`Desktop package version must be a stable non-zero semver version. Current: ${version}`);
   }
-  requireCommand("pnpm", ["--version"]);
+  requireCommand("bun", ["--version"]);
   requireCommand("gh", ["--version"]);
   if (!commandExists("unsquashfs", { cwd: repoRoot })) {
     throw new Error("Linux AppImage payload validation requires unsquashfs. Install it with: brew install squashfs");
@@ -888,7 +888,7 @@ function validatePackagedOutput(build) {
   for (const [index, validationTarget] of build.validationTargets.entries()) {
     const validationDir = mkdtempSync(join(tmpdir(), `openpets-package-${version}-`));
     try {
-      run("pnpm", ["exec", "electron-builder", ...validationTarget.args, "--dir", "--publish", "never", `--config.directories.output=${validationDir}`], { cwd: desktopDir });
+      run("bunx", ["electron-builder", ...validationTarget.args, "--dir", "--publish", "never", `--config.directories.output=${validationDir}`], { cwd: desktopDir });
       run("node", ["dist/check-packaging-contract.js", "--output", "--output-dir", validationDir, "--platform", validationTarget.platform, "--arch", validationTarget.arch], { cwd: desktopDir });
       console.log(`Temporary packaged-output validation passed for ${build.name} target ${index + 1}/${build.validationTargets.length}.`);
     } finally {
@@ -1062,7 +1062,7 @@ function defaultReleaseNotes(previousTag) {
 }
 
 function printHelp() {
-  console.log(`Usage: pnpm release:desktop -- --yes
+  console.log(`Usage: bun run release:desktop -- --yes
 
 Runs the desktop release as a sequence of checkpointed stages. Each stage that
 succeeds is recorded in apps/desktop/.release-state/v<version>.json, so a failed
@@ -1072,7 +1072,7 @@ work resumes at the stage that failed.
 Stages (default plan):
   verify:marketplace      verify marketplace readiness and desktop compatibility (always runs)
   verify:npm-integrations verify exact @open-pets/opencode + @open-pets/openclaw versions exist on npm (--yes only)
-  checks                  pnpm build + desktop check
+  checks                  bun run build + desktop check
   clean                   clean apps/desktop/dist-electron
   build:mac-dmg           macOS DMG x64 + arm64 (each packaged-output validated first)
   build:mac-zip           macOS ZIP x64 + arm64 (each packaged-output validated first)
@@ -1100,7 +1100,7 @@ Options:
   --reset                     delete the checkpoint for this version, then exit
   --resume                    legacy alias for resuming a tagged HEAD without a checkpoint
   --linux-package-dir <dir>   use validated Ubuntu-built DEB/RPM files from an absolute staging directory
-  --skip-checks               skip pnpm build and desktop check (incompatible with --yes)
+  --skip-checks               skip bun run build and desktop check (incompatible with --yes)
   --include-experimental-arm  also build optional Windows/Linux ARM64 targets; Windows ARM is never published
   --dry-run                   discouraged: builds everything locally, then throws the work away
                               without tagging or publishing. The staged checkpoint already

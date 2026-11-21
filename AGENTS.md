@@ -144,9 +144,9 @@ contract details are meaningless and should be removed rather than maintained.
 
 Run the narrowest relevant behavior tests first, then the applicable project
 check. For desktop changes, normally run
-`pnpm --filter @open-pets/desktop check`; run
-`pnpm --filter @open-pets/desktop test` for cross-cutting changes or before
-merge. Build docs with `pnpm docs:build` whenever documentation changes.
+`bun run --filter @open-pets/desktop check`; run
+`bun run --filter @open-pets/desktop test` for cross-cutting changes or before
+merge. Build docs with `bun run docs:build` whenever documentation changes.
 Always finish with `git diff --check` and leave the working tree free of generated
 or unrelated changes.
 
@@ -177,9 +177,9 @@ Before changing plugin platform code, official plugins, plugin catalog generatio
 When plugin work is finished, update these docs if behavior, commands, manifests, plugin IDs, default bundled/enabled status, catalog workflow, permissions, or the planned plugin lineup changed. Do not leave plugin docs stale after implementation.
 
 For plugin release/catalog work, run the release validator before shipping:
-- `pnpm plugins:package`
-- `pnpm plugins:validate-release`
-- after deploy/R2 upload, `pnpm plugins:validate-live`
+- `bun run plugins:package`
+- `bun run plugins:validate-release`
+- after deploy/R2 upload, `bun run plugins:validate-live`
 
 The validator exists to catch production-breaking plugin mistakes: unresolved
 `$t:` names/descriptions in catalog cards, missing plugin ZIPs, SHA mismatches,

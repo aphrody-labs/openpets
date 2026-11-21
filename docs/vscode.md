@@ -76,8 +76,8 @@ browser flows were exercised.
 
 ## Development and validation
 
-Run `pnpm --filter openpets-vscode build` and
-`pnpm --filter openpets-vscode package:local` for a local VSIX. The latest source
+Run `bun run --filter openpets-vscode build` and
+`bun run --filter openpets-vscode package:local` for a local VSIX. The latest source
 gate passed; the extension's 91 tests, build and typecheck and the documentation
 build passed after removal of the ball interaction. A macOS development host
 demonstrated live drag animation and roaming.

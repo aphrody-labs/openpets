@@ -148,7 +148,7 @@ export function verifyExactNpmVersions({ specs, repoRoot, probe = (spec) => prob
     const lines = [];
     if (missing.length > 0) {
       lines.push(`Packaged Desktop would emit unavailable npm specs: ${missing.join(", ")}.`);
-      lines.push("Run/publish the npm release (pnpm release:npm -- --yes) before continuing with the desktop release.");
+      lines.push("Run/publish the npm release (bun run release:npm -- --yes) before continuing with the desktop release.");
     }
     if (unverifiable.length > 0) {
       lines.push(`npm registry check failed (not treated as unpublished): ${unverifiable.join("; ")}.`);

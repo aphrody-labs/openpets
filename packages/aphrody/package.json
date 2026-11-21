@@ -1,0 +1,26 @@
+{
+  "name": "@aphrody/pets",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "description": "Build OpenPets desktop pets from a plan file: frames in, validated pet folder out. Bun + ffmpeg, no npm image libraries.",
+  "type": "module",
+  "exports": {
+    ".": "./src/pets.ts"
+  },
+  "bin": {
+    "aphrody-pet": "./src/cli.ts"
+  },
+  "scripts": {
+    "build:byron-love": "bun src/cli.ts build pets/byron-love.json",
+    "show:byron-love": "bun src/cli.ts show pets/byron-love.json --hold 120",
+    "check": "bun check src"
+  },
+  "dependencies": {
+    "@open-pets/pet-format": "workspace:*",
+    "@open-pets/client": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.4.5"
+  }
+}

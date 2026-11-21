@@ -80,7 +80,7 @@ Docs here are the *narrative* layer on top of those maps.
   validators (`validate-release` / `validate-live`), catalog verification, and
   what "production-valid" means before shipping.
 - **[screenshots.md](screenshots.md)** - the dev capture session: transparent,
-  trimmed screenshots of the pet in any plugin state (`pnpm capture`).
+  trimmed screenshots of the pet in any plugin state (`bun run capture`).
 
 ## How to keep these docs healthy
 

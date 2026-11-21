@@ -2,12 +2,12 @@
 
 ## Project Responsibility
 
-OpenPets is a pnpm/TypeScript monorepo for an Electron desktop companion app, a standalone VS Code extension foundation, and npm packages that let coding agents control animated desktop pets. The workspace provides a local IPC protocol, MCP server, CLI tooling, and editor/agent integrations for Claude Code, OpenCode, Cursor, Zed, Devin, Pi, and OpenClaw.
+OpenPets is a Bun/TypeScript monorepo for an Electron desktop companion app, a standalone VS Code extension foundation, and npm packages that let coding agents control animated desktop pets. The workspace provides a local IPC protocol, MCP server, CLI tooling, and editor/agent integrations for Claude Code, OpenCode, Cursor, Zed, Devin, Pi, and OpenClaw.
 
 ## System Entry Points
 
 - `package.json`: workspace scripts for building, checking, testing, desktop packaging, and npm release orchestration.
-- `pnpm-workspace.yaml`: workspace membership for `apps/*` and `packages/*`.
+- `package.json` `workspaces`: workspace membership for `apps/*` and `packages/*`.
 - `apps/desktop/src/main.ts`: Electron main-process bootstrap for the desktop pet app.
 - `apps/vscode-extension/src/extension.ts`: VS Code UI-host extension foundation activation and surface registration.
 - `packages/cli/src/index.ts`: command-line setup, pet management, MCP launch, and plugin scaffold/validation entry point.
@@ -19,7 +19,7 @@ OpenPets is a pnpm/TypeScript monorepo for an Electron desktop companion app, a 
 - `packages/pi/src/extension.ts`: Pi coding-agent extension runtime entry point.
 - `packages/openclaw/src/index.ts`: Native OpenClaw plugin entry point and lifecycle-management exports.
 - `packages/sdk/src/index.ts`: public SDK v3 type contract for plugin authors.
-- `scripts/capture.mjs`: `pnpm capture` runner for the long-running dev screenshot session (`docs/screenshots.md`); scenarios live in `scripts/capture-scenarios/`.
+- `scripts/capture.mjs`: `bun run capture` runner for the long-running dev screenshot session (`docs/screenshots.md`); scenarios live in `scripts/capture-scenarios/`.
 - `plugins/official/`: first-party SDK v3 plugin product source consumed by desktop dev mode and plugin packaging/catalog release workflows.
 
 ## Directory Map
@@ -80,7 +80,7 @@ OpenPets is a pnpm/TypeScript monorepo for an Electron desktop companion app, a 
 5. The plugin service loads approved catalog or local `openpets.plugin.json` manifests, persists plugin state/config, schedules declarative timers, and bridges SDK v3 calls through permission-checked host modules for UI, audio, events, storage, AI, OAuth, voice, panels, and pet control. Plugin voice input remains one-shot, live-track-accounted, cancellable, timeout-bounded, and never ambient; the separate realtime conversation foundation is host-private and not exposed through the SDK.
 6. Pet windows render reaction-driven animations, localized speech, host-rendered bubbles/alerts/HUDs, and status reactions using desktop state plus reaction mapping metadata.
 7. Pet assets are resolved from built-in assets, locally developed Codex pets, or remotely downloaded catalog ZIPs. Explicit Motion packages use named animated WebP clips through shared validation and the existing local import transaction; desktop snapshots pin bytes across replacement, while the renderer body coordinator owns semantic playback.
-8. Workspace packages share TypeScript/ESM build conventions and are wired together through pnpm `workspace:*` dependencies.
+8. Workspace packages share TypeScript/ESM build conventions and are wired together through Bun `workspace:*` dependencies.
 9. The standalone VS Code UI host provides a bundled pet and outfits, catalog and local ZIP installation, manual outfits, and editor/sidebar webviews without the desktop IPC service. Scene instances, roaming and settings are implemented; the locally packaged extension is for evaluation, not Marketplace release.
 
 ## Working Notes

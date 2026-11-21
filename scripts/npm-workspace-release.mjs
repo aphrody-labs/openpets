@@ -115,20 +115,6 @@ export function isStableSemver(version) {
 }
 
 function readWorkspaceDirectories(repoRoot) {
-  const workspaceFile = join(repoRoot, "pnpm-workspace.yaml");
-  if (existsSync(workspaceFile)) {
-    const directories = readFileSync(workspaceFile, "utf8")
-      .split(/\r?\n/)
-      .map((line) => {
-        const match = line.match(/^\s*-\s*(?:["']([^"']+)["']|([^\s#]+))\s*$/);
-        return match?.[1] || match?.[2];
-      })
-      .filter(Boolean)
-      .map((pattern) => pattern.endsWith("/*") ? pattern.slice(0, -2) : null)
-      .filter(Boolean);
-    if (directories.length > 0) return directories;
-  }
-
   const rootManifest = readJson(join(repoRoot, "package.json"));
   return (rootManifest.workspaces || [])
     .map((pattern) => pattern.endsWith("/*") ? pattern.slice(0, -2) : null)

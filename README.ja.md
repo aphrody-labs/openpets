@@ -200,40 +200,40 @@ OpenPetsコードベースへの貢献、変更のテスト、またはデスク
 
 ### Prerequisites
 - **Node.js**: バージョン 20 以上
-- **pnpm**: バージョン 11 以上
+- **Bun**: バージョン 1.4.6 以上
 - **TypeScript**: コンパイラサポート
 
 ### Commands
 
 プロジェクトワークスペースの依存関係をインストールします。
 ```bash
-pnpm install
+bun install
 ```
 
 Electronアプリケーションをローカルの開発者モードで起動します。
 ```bash
-pnpm dev:desktop
+bun run dev:desktop
 ```
 
 ロードおよび監視されたライブ公式プラグインを使用して起動します。
 ```bash
-pnpm dev:desktop:plugins
+bun run dev:desktop:plugins
 ```
 
 ワークスペースの型チェック、コード適合性検証、およびテストを実行します。
 ```bash
-pnpm check
-pnpm typecheck
-pnpm test
+bun run check
+bun run typecheck
+bun run test
 ```
 
 デスクトップアプリケーションをパッケージ化します。
 ```bash
 # 対象のOSディレクトリへのビルド & パッケージ化
-pnpm package:desktop:dir
+bun run package:desktop:dir
 
 # 最終的なインストーラー/セットアップアーカイブへのビルド & パッケージ化
-pnpm package:desktop
+bun run package:desktop
 ```
 
 ### Workspace Structure

@@ -200,40 +200,40 @@ OpenPets 코드베이스에 기여하거나, 변경 사항을 테스트하거나
 
 ### 사전 요구사항
 - **Node.js**: 버전 20 이상
-- **pnpm**: 버전 11 이상
+- **Bun**: 버전 1.4.6 이상
 - **TypeScript**: 컴파일러 지원
 
 ### 명령어
 
 프로젝트 워크스페이스 의존성 설치:
 ```bash
-pnpm install
+bun install
 ```
 
 로컬 개발 모드에서 Electron 애플리케이션 실행:
 ```bash
-pnpm dev:desktop
+bun run dev:desktop
 ```
 
 라이브 상태의 공식 플러그인들을 로드하고 모니터링하며 실행:
 ```bash
-pnpm dev:desktop:plugins
+bun run dev:desktop:plugins
 ```
 
 워크스페이스 타입 검사, 코드 적합성 검증 및 테스트 실행:
 ```bash
-pnpm check
-pnpm typecheck
-pnpm test
+bun run check
+bun run typecheck
+bun run test
 ```
 
 데스크톱 애플리케이션 패키징:
 ```bash
 # Build & package into target OS directory
-pnpm package:desktop:dir
+bun run package:desktop:dir
 
 # Build & package into final installer / setup archives
-pnpm package:desktop
+bun run package:desktop
 ```
 
 ### 워크스페이스 구조

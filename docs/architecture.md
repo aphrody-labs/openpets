@@ -4,7 +4,7 @@ description: Understand the OpenPets desktop app, companion pets, plugin host, c
 
 # Architecture
 
-OpenPets is a pnpm + TypeScript monorepo for an Electron desktop companion app
+OpenPets is a Bun + TypeScript monorepo for an Electron desktop companion app
 and a set of npm packages that let coding agents drive animated desktop pets.
 This doc is the one-page mental model: what runs where, how a request travels
 end to end, and the vocabulary used throughout the rest of the docs.

@@ -42,6 +42,6 @@ separate files that this package also manages.
 - **Consumers**: `apps/desktop/src/agent-setup-devin.ts` (Control Center) and
   `packages/cli` (`openpets configure --agent devin`, `openpets hook --agent devin`).
 - **Dependencies**: `jsonc-parser`.
-- **Checks**: `src/check-devin.ts` (`pnpm --filter @open-pets/devin check`).
+- **Checks**: `src/check-devin.ts` (`bun run --filter @open-pets/devin check`).
 
 See [src/codemap.md](src/codemap.md) for module details.

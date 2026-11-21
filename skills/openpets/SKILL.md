@@ -83,7 +83,7 @@ unpacked plugin folder**. OpenPets validates and snapshots the folder, remembers
 the source location, watches it, and re-snapshots/reloads after edits. Reloading
 locally does not publish or upload anything.
 
-If the user maintains OpenPets itself, `pnpm dev:desktop:plugins` hot-loads the
+If the user maintains OpenPets itself, `bun run dev:desktop:plugins` hot-loads the
 repository's `plugins/official` and `plugins/dev` lanes. Do not tell an external
 plugin author to use maintainer-only environment variables or catalog commands.
 

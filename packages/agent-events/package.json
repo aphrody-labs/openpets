@@ -23,8 +23,8 @@
     }
   },
   "scripts": {
-    "test": "node dist/check-agent-events.js",
-    "check": "pnpm typecheck && pnpm build && pnpm test",
+    "test": "bun dist/check-agent-events.js",
+    "check": "bun run typecheck && bun run build && bun run test",
     "typecheck": "tsc --noEmit",
     "build": "tsc"
   },

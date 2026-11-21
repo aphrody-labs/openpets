@@ -25,8 +25,8 @@ From fastest/narrowest to broadest:
    mismatches, unresolved `$t:`).
 5. **Live validation** - post-deploy checks against the real origin.
 
-Run the suite with `pnpm test` (builds first, then each package's tests) and
-`pnpm check` (per-package typecheck + build + contract checks). See
+Run the suite with `bun run test` (builds first, then each package's tests) and
+`bun run check` (per-package typecheck + build + contract checks). See
 [Development](/development) for the command surface.
 
 ## Desktop tests
@@ -142,11 +142,11 @@ Each package runs its own `check`/`test`. Notable contract/boundary coverage:
 
 ## VS Code extension validation and release gate
 
-From the repository root, run `pnpm vscode:check` for the extension typecheck
-and behavior tests, `pnpm vscode:build` for its bundles, and
-`pnpm vscode:package` for the self-contained local VSIX. These commands build
+From the repository root, run `bun run vscode:check` for the extension typecheck
+and behavior tests, `bun run vscode:build` for its bundles, and
+`bun run vscode:package` for the self-contained local VSIX. These commands build
 workspace dependencies first. The path-filtered/manual VS Code workflow runs
-the same commands after `pnpm install --frozen-lockfile` and uploads the VSIX;
+the same commands after `bun install --frozen-lockfile` and uploads the VSIX;
 it neither installs the artifact in a real editor nor publishes it.
 
 Before any public Marketplace release, verify the actual packaged VSIX in a
@@ -160,8 +160,8 @@ packaging or CI alone does not establish Marketplace readiness.
 
 ## Plugin testing
 
-- **Marketplace:** `pnpm marketplace:validator:check` and
-  `pnpm marketplace:validator:test` verify the portable authoritative validator
+- **Marketplace:** `bun run marketplace:validator:check` and
+  `bun run marketplace:validator:test` verify the portable authoritative validator
   and publishing CLI. Studio's `tests/test_marketplace_*.py` protect immutable
   snapshots, review state, account retention, artifact visibility and API
   authorization; desktop's `plugin-marketplace`, `plugin-package`,
@@ -179,8 +179,8 @@ packaging or CI alone does not establish Marketplace readiness.
   native `bun test` command.
 - **Unit**: each official plugin has a `test.js` using
   `@open-pets/plugin-sdk/testing` - fake time/events, descriptor-level
-  assertions, no Electron. Run via `pnpm plugins:test`, which first runs
-  `pnpm plugins:locales` (`scripts/check-plugin-locales.mjs`) to verify every
+  assertions, no Electron. Run via `bun run plugins:test`, which first runs
+  `bun run plugins:locales` (`scripts/check-plugin-locales.mjs`) to verify every
   `$t:`/`ctx.t()` key resolves. See [Plugin SDK v3](/sdk).
 - **Manifest validation**: `openpets plugin validate <dir>` checks manifest,
   permissions, SDK compatibility, config field types, network hosts, asset
@@ -190,8 +190,8 @@ packaging or CI alone does not establish Marketplace readiness.
   primary-calendar reconciliation, state-appropriate connection commands,
   ten-minute and start deliveries, duplicate suppression, selected/default
   couriers, and reconnect-required cleanup. Run its plugin test alongside
-  `pnpm plugins:locales`,
-  `pnpm plugins:test`, and `pnpm --filter @open-pets/plugin-sdk check` when
+  `bun run plugins:locales`,
+  `bun run plugins:test`, and `bun run --filter @open-pets/plugin-sdk check` when
   changing its SDK-facing behavior.
 - **Delivery/picker boundary**: desktop bridge tests cover `ui:delivery`
   permission and lifecycle semantics; manifest validation covers declared
@@ -207,9 +207,9 @@ the production gate (`scripts/validate-plugin-release.mjs`):
 
 | Command                         | When                       | Catches                                                                                                                                                                                                                                                                                           |
 | ------------------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pnpm plugins:package`          | build artifacts            | (produces catalog + ZIP staging)                                                                                                                                                                                                                                                                  |
-| `pnpm plugins:validate-release` | **before deploy**          | unresolved `$t:` names/descriptions in catalog cards, missing plugin ZIPs, SHA mismatches, missing `locales/en.json`, missing declared assets/entry files (including courier sprites), catalog/package drift, and **community plugin sidecar validation** (`provenance.json`, `submissions.json`) |
-| `pnpm plugins:validate-live`    | **after deploy/R2 upload** | the same, against the live catalog + live ZIPs & live sidecars                                                                                                                                                                                                                                    |
+| `bun run plugins:package`          | build artifacts            | (produces catalog + ZIP staging)                                                                                                                                                                                                                                                                  |
+| `bun run plugins:validate-release` | **before deploy**          | unresolved `$t:` names/descriptions in catalog cards, missing plugin ZIPs, SHA mismatches, missing `locales/en.json`, missing declared assets/entry files (including courier sprites), catalog/package drift, and **community plugin sidecar validation** (`provenance.json`, `submissions.json`) |
+| `bun run plugins:validate-live`    | **after deploy/R2 upload** | the same, against the live catalog + live ZIPs & live sidecars                                                                                                                                                                                                                                    |
 
 ### Plugin sidecar validation
 
@@ -222,11 +222,11 @@ and `web/public/plugins/submissions.json` and asserts:
 4. Pending submissions are well-formed and are not also present in the installable catalog.
 
 The full pre-ship sequence (from `AGENTS.md`):
-`pnpm plugins:package` → `pnpm plugins:validate-release` → deploy/upload →
-`pnpm plugins:validate-live`. Treat a failing validator as a hard stop - these
+`bun run plugins:package` → `bun run plugins:validate-release` → deploy/upload →
+`bun run plugins:validate-live`. Treat a failing validator as a hard stop - these
 are exactly the mistakes that 404 a plugin or render a raw `$t:...` to users.
 For the full plugin catalog release path in one command, run
-`pnpm plugins:release`; it packages, validates, publishes ZIPs, deploys the web
+`bun run plugins:release`; it packages, validates, publishes ZIPs, deploys the web
 catalog, then validates the live catalog.
 
 ## Catalog verification (production gate for pets)
@@ -252,7 +252,7 @@ central directory; they do not download spritesheet payloads. See
 
 Before shipping, the relevant gate must be green:
 
-- **A package change** → `pnpm check` + `pnpm test` (incl. contract + conformance
+- **A package change** → `bun run check` + `bun run test` (incl. contract + conformance
   checks) pass; for `@open-pets/dsh`, the package artifact/load smoke also
   passes.
 - **An app change** → desktop behavior + contract + runtime checks pass; if it
@@ -286,14 +286,14 @@ stales the stage while an unchanged checkpoint remains reusable.
 
 Release commands do not replace the quality gates:
 
-- **Package gate** → `pnpm check` and `pnpm test` pass for the workspace and the
+- **Package gate** → `bun run check` and `bun run test` pass for the workspace and the
   current public package plan.
-- **Desktop gate** → `pnpm --filter @open-pets/desktop check` and
-  `pnpm --filter @open-pets/desktop test` pass, with the workspace build required
+- **Desktop gate** → `bun run --filter @open-pets/desktop check` and
+  `bun run --filter @open-pets/desktop test` pass, with the workspace build required
   by the desktop release flow.
 
 For a full shared-version release, publish the complete dynamic package plan
-with `pnpm release:npm -- --yes`, verify every planned package/version on the
+with `bun run release:npm -- --yes`, verify every planned package/version on the
 public npm registry, and only then promote the desktop tag. The npm helper's
 printed plan is authoritative; this document must not become a stale package
 inventory. A partial npm publish is recoverable by rerunning the same command;
@@ -306,7 +306,7 @@ and verify that version before the desktop tag is promoted. Never use
 use the tagged source explicitly:
 
 ```bash
-pnpm release:npm -- --yes --ref vX.Y.Z
+bun run release:npm -- --yes --ref vX.Y.Z
 ```
 
 If a gate is skipped, say so explicitly rather than implying coverage. Contract

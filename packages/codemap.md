@@ -22,7 +22,7 @@ Provides modular, reusable components for the OpenPets ecosystem:
 
 ## Design/Patterns
 
-**Workspace Pattern**: Uses pnpm workspaces with `workspace:*` dependencies for internal linking.
+**Workspace Pattern**: Uses Bun workspaces with `workspace:*` dependencies for internal linking.
 
 **Package Structure**: Each package follows a consistent structure:
 - `src/` - TypeScript source

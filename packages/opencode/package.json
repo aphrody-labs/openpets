@@ -23,8 +23,8 @@
     }
   },
   "scripts": {
-    "test": "node dist/check-opencode-foundation.js && node dist/check-opencode-plugin.js",
-    "check": "pnpm typecheck && pnpm build && pnpm test",
+    "test": "bun dist/check-opencode-foundation.js && bun dist/check-opencode-plugin.js",
+    "check": "bun run typecheck && bun run build && bun run test",
     "typecheck": "tsc --noEmit",
     "build": "tsc"
   },

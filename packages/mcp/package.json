@@ -26,10 +26,10 @@
     }
   },
   "scripts": {
-    "test": "node dist/check-mcp-contract.js",
-    "check": "pnpm --filter @open-pets/client build && pnpm typecheck && pnpm build && pnpm test",
+    "test": "bun dist/check-mcp-contract.js",
+    "check": "bun run --filter @open-pets/client build && bun run typecheck && bun run build && bun run test",
     "typecheck": "tsc --noEmit",
-    "build": "tsc && node dist/ensure-executable.js"
+    "build": "tsc && bun dist/ensure-executable.js"
   },
   "devDependencies": {
     "@types/node": "^25.6.2",

@@ -2,7 +2,7 @@
 
 ## Responsibility
 
-Public API boundary contract tests for the OpenPets desktop application. These contracts validate that critical external-facing interfaces (catalog data, IPC protocol) conform to expected schemas and behavior. Contract tests are compiled to `.test-dist/contracts/` and executed during `pnpm test`.
+Public API boundary contract tests for the OpenPets desktop application. These contracts validate that critical external-facing interfaces (catalog data, IPC protocol) conform to expected schemas and behavior. Contract tests are compiled to `.test-dist/contracts/` and executed during `bun run test`.
 
 ## Design Patterns
 

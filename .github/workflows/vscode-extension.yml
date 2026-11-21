@@ -8,8 +8,7 @@ on:
       - "apps/desktop/assets/default-pet-spritesheet.webp"
       - "packages/**"
       - "package.json"
-      - "pnpm-lock.yaml"
-      - "pnpm-workspace.yaml"
+      - "bun.lock"
   workflow_dispatch:
 
 permissions:
@@ -26,28 +25,25 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 11.0.8
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: pnpm
-
+          
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: bun run install:release
 
       - name: Check and test extension
-        run: pnpm vscode:check
+        run: bun run vscode:check
 
       - name: Build extension
-        run: pnpm vscode:build
+        run: bun run vscode:build
 
       - name: Package local VSIX
-        run: pnpm vscode:package
+        run: bun run vscode:package
 
       - name: Upload local VSIX
         uses: actions/upload-artifact@v4

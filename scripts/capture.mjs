@@ -2,11 +2,11 @@
 /**
  * Screenshot session runner. See docs/screenshots.md.
  *
- *   pnpm capture start [--plugins a,b] [--keep] [--no-build]
- *   pnpm capture cmd <pluginId> <commandId> [argsJson]
- *   pnpm capture shot <name> [--padding 24] [--settle 250] [--out dir]
- *   pnpm capture run <scenario.json | folder>
- *   pnpm capture stop
+ *   bun run capture start [--plugins a,b] [--keep] [--no-build]
+ *   bun run capture cmd <pluginId> <commandId> [argsJson]
+ *   bun run capture shot <name> [--padding 24] [--settle 250] [--out dir]
+ *   bun run capture run <scenario.json | folder>
+ *   bun run capture stop
  */
 
 import { spawn, spawnSync } from "node:child_process";
@@ -35,7 +35,7 @@ const stopTimeoutMs = 10_000;
 const requestTimeoutMs = 30_000;
 const chatTimeoutMs = 180_000;
 
-const usage = `Usage: pnpm capture <command>
+const usage = `Usage: bun run capture <command>
 
 Session
   start [--plugins id,id] [--keep] [--no-build] [--teams-api url]
@@ -175,11 +175,11 @@ function sessionOptionsFromFlags(flags) {
 
 async function startSession({ plugins, keepProfile, build, teamsApi }) {
   if (await isSessionRunning()) {
-    throw new Error("A capture session is already running. Use `pnpm capture restart` or `pnpm capture stop`.");
+    throw new Error("A capture session is already running. Use `bun run capture restart` or `bun run capture stop`.");
   }
   if (build) {
     console.log("Building desktop app…");
-    const result = spawnSync("pnpm", ["--filter", "@open-pets/desktop", "build"], { cwd: repoRoot, stdio: "inherit" });
+    const result = spawnSync("bun", ["run", "--filter", "@open-pets/desktop", "build"], { cwd: repoRoot, stdio: "inherit" });
     if (result.status !== 0) throw new Error("Desktop build failed.");
   }
 
@@ -306,7 +306,7 @@ function resolveElectronBinary() {
   const requireFromDesktop = createRequire(join(desktopDir, "package.json"));
   const binary = requireFromDesktop("electron");
   if (typeof binary !== "string" || !existsSync(binary)) {
-    throw new Error("Electron binary is missing. Reinstall dependencies (pnpm install).");
+    throw new Error("Electron binary is missing. Reinstall dependencies (bun install).");
   }
   return binary;
 }
@@ -581,7 +581,7 @@ function request(method, params = {}, { quiet = false, timeoutMs = requestTimeou
     });
     socket.on("error", (error) => {
       clearTimeout(timer);
-      reject(new Error(error.code === "ENOENT" || error.code === "ECONNREFUSED" ? "No capture session running. Start one with `pnpm capture start`." : error.message));
+      reject(new Error(error.code === "ENOENT" || error.code === "ECONNREFUSED" ? "No capture session running. Start one with `bun run capture start`." : error.message));
     });
     socket.on("end", () => {
       clearTimeout(timer);

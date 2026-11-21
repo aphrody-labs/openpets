@@ -31,8 +31,8 @@
     "./openclaw.plugin.json": "./openclaw.plugin.json"
   },
   "scripts": {
-    "test": "node dist/check-openclaw.js",
-    "check": "pnpm typecheck && pnpm build && pnpm test",
+    "test": "bun dist/check-openclaw.js",
+    "check": "bun run typecheck && bun run build && bun run test",
     "typecheck": "tsc --noEmit",
     "build": "tsc"
   },
@@ -53,7 +53,9 @@
     "typescript": "^6.0.3"
   },
   "openclaw": {
-    "extensions": ["./dist/index.js"],
+    "extensions": [
+      "./dist/index.js"
+    ],
     "compat": {
       "pluginApi": ">=2026.7.1",
       "minGatewayVersion": "2026.7.1"

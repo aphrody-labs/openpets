@@ -195,9 +195,9 @@ import is the explicit review/approval action for this curated launch inventory.
 From the root repository:
 
 ```sh
-pnpm marketplace:migrate plan --catalog web/public/plugins/catalog.v2.json \
+bun run marketplace:migrate plan --catalog web/public/plugins/catalog.v2.json \
   --provenance web/public/plugins/provenance.json --out /path/to/migration-plan
-pnpm marketplace:migrate check --plan /path/to/migration-plan/plan.json
+bun run marketplace:migrate check --plan /path/to/migration-plan/plan.json
 ```
 
 Planning verifies every source archive before any import and accepts only the
@@ -210,8 +210,8 @@ After deploying the API independently, configure `OPENPETS_STUDIO_API_URL` and
 an administrator's `OPENPETS_STUDIO_TOKEN`, then deliberately import and verify:
 
 ```sh
-pnpm marketplace:migrate import --plan /path/to/migration-plan/plan.json
-pnpm marketplace:migrate verify --plan /path/to/migration-plan/plan.json
+bun run marketplace:migrate import --plan /path/to/migration-plan/plan.json
+bun run marketplace:migrate verify --plan /path/to/migration-plan/plan.json
 ```
 
 Import preflights the entire cache before its first write. Exact retries remain
@@ -229,8 +229,8 @@ accounting, not a deep artifact-integrity claim. The deployment preflight checks
 anonymous ZIP/media bytes and desktop app/SDK/runtime compatibility independently:
 
 ```sh
-pnpm marketplace:release:check --desktop-version 4.1.0
-pnpm marketplace:release:check --web
+bun run marketplace:release:check --desktop-version 4.1.0
+bun run marketplace:release:check --web
 ```
 
 Use the actual desktop version being released. Desktop release and website deploy

@@ -20,7 +20,7 @@ const result = await build({
 const bytes = result.outputFiles[0].contents;
 if (process.argv.includes("--check")) {
   const current = await readFile(output);
-  if (!Buffer.from(bytes).equals(current)) throw new Error("Marketplace validator bundle is stale; run pnpm marketplace:validator:build.");
+  if (!Buffer.from(bytes).equals(current)) throw new Error("Marketplace validator bundle is stale; run bun run marketplace:validator:build.");
   console.log("Marketplace validator bundle is current.");
 } else {
   await writeFile(output, bytes);

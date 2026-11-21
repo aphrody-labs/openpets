@@ -8,7 +8,6 @@ import { discoverPublicWorkspacePackages } from "./npm-workspace-release.mjs";
 const fixtureRoot = mkdtempSync(join(tmpdir(), "openpets-workspace-release-"));
 
 try {
-  writeFileSync(join(fixtureRoot, "pnpm-workspace.yaml"), "packages:\n  - \"packages/*\"\n");
   writeFileSync(join(fixtureRoot, "package.json"), JSON.stringify({ workspaces: ["packages/*"] }));
 
   createPackage("z-dependent", { dependencies: { "@fixture/base": "workspace:*" } });

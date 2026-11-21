@@ -11,7 +11,7 @@ export function validateTrustedTagRefs({ ref, remoteRefs }) {
 }
 
 export function recoveryInstallCommand() {
-  return ["pnpm", ["install", "--frozen-lockfile"]];
+  return ["bun", ["install", "--frozen-lockfile"]];
 }
 
 export function validateCurrentCheckoutState({ status, upstream, head, remoteHead }) {
