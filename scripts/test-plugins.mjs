@@ -59,14 +59,15 @@ if (files.length === 0) {
   process.exit(0);
 }
 
-for (const file of files) {
-  const result = spawnSync(process.execPath, ["--check", file], { stdio: "inherit" });
-  if (result.status !== 0) process.exit(result.status ?? 1);
-}
+// Bun has no `--check` (it would run the file); parsing with Bun.Transpiler reports syntax errors without executing.
+const transpiler = new Bun.Transpiler({ loader: "js" });
+for (const file of files) transpiler.transformSync(await Bun.file(file).text());
 
 for (const file of tests) {
   const result = spawnSync(process.execPath, [file], { stdio: "inherit" });
   if (result.status !== 0) process.exit(result.status ?? 1);
 }
 
-console.log(`Checked ${files.length} plugin JavaScript file${files.length === 1 ? "" : "s"}; ran ${tests.length} plugin test${tests.length === 1 ? "" : "s"}.`);
+console.log(
+  `Checked ${files.length} plugin JavaScript file${files.length === 1 ? "" : "s"}; ran ${tests.length} plugin test${tests.length === 1 ? "" : "s"}.`,
+);

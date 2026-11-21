@@ -13,7 +13,14 @@ import { discoverArtifacts, relativePath } from "./test-discovery.mjs";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const rootDir = join(__dirname, "..");
 
-const preloadChecks = ["control-center-preload.cjs", "dist/pet-preload.cjs", "pet-tts-helper.cjs", "plugin-sdk-preload.cjs", "panel-preload.cjs", "voice-realtime-preload.cjs"];
+const preloadChecks = [
+  "control-center-preload.cjs",
+  "dist/pet-preload.cjs",
+  "pet-tts-helper.cjs",
+  "plugin-sdk-preload.cjs",
+  "panel-preload.cjs",
+  "voice-realtime-preload.cjs",
+];
 
 async function assertArtifactsExist(label, artifacts) {
   const missing = [];
@@ -26,14 +33,17 @@ async function assertArtifactsExist(label, artifacts) {
     }
   }
   if (missing.length > 0) {
-    const listed = missing.map((artifact) => `  ${relativePath(rootDir, artifact)}`).join("\n");
+    const listed = missing
+      .map((artifact) => `  ${relativePath(rootDir, artifact)}`)
+      .join("\n");
     throw new Error(`Missing mapped ${label} artifacts:\n${listed}`);
   }
 }
 
 function logDiscoveredArtifacts(label, artifacts) {
   console.log(`\nDiscovered ${label}:`);
-  for (const artifact of artifacts) console.log(`- ${relativePath(rootDir, artifact)}`);
+  for (const artifact of artifacts)
+    console.log(`- ${relativePath(rootDir, artifact)}`);
 }
 
 function commandForPlatform(command, args) {
@@ -51,7 +61,11 @@ function run(command, args = [], options = {}) {
     });
     child.on("close", (code) => {
       if (code !== 0) {
-        reject(new Error(`Command failed with exit code ${code}: ${command} ${args.join(" ")}`));
+        reject(
+          new Error(
+            `Command failed with exit code ${code}: ${command} ${args.join(" ")}`,
+          ),
+        );
       } else {
         resolve();
       }
@@ -67,7 +81,8 @@ async function main() {
   console.log("\n[preflight] Checking npm release gate invariants...");
   await run("node", ["scripts/npm-release-gate.test.mjs"]);
 
-  const { behaviorTests, contractTests, distChecks } = await discoverArtifacts(rootDir);
+  const { behaviorTests, contractTests, distChecks } =
+    await discoverArtifacts(rootDir);
   await rm(join(rootDir, ".test-dist"), { force: true, recursive: true });
   logDiscoveredArtifacts("behavior tests", behaviorTests);
   logDiscoveredArtifacts("contract tests", contractTests);
@@ -76,7 +91,11 @@ async function main() {
   // 1. Preload syntax checks
   console.log("\n[1/5] Checking preload syntax...");
   await run("bun", ["run", "build:preload"]);
-  for (const preload of preloadChecks) await run("node", ["--check", preload]);
+  // Bun has no `--check` (it would run the file); parsing with Bun.Transpiler reports syntax errors without executing.
+  for (const preload of preloadChecks)
+    new Bun.Transpiler({ loader: "js" }).transformSync(
+      await Bun.file(preload).text(),
+    );
 
   // 2. Build tests
   console.log("\n[2/5] Building tests...");
