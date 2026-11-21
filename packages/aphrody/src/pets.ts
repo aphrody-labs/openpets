@@ -1,7 +1,6 @@
 // @aphrody/pets: build an OpenPets pet folder (pet.json + spritesheet.webp) from a plan file.
-// Bun orchestrates, composites and validates; ffmpeg decodes, scales and encodes WebP because
-// Bun.Image (1.4.x) has no crop, composite or raw RGBA input.
-import { $ } from "bun";
+// Everything runs in Bun: Bun.Image transcodes, src/image.ts decodes PNG, crops, scales and composites.
+// Optional: when `cwebp` is on PATH the sheet is also re-encoded with `cwebp -lossless -z 9 -exact` and the smaller file is kept (--no-cwebp skips it).
 import { mkdir } from "node:fs/promises";
 import { basename, dirname, join, resolve } from "node:path";
 import {
@@ -10,6 +9,17 @@ import {
 } from "@open-pets/pet-format/animation";
 import { codexV2SpriteLayout } from "@open-pets/pet-format/sprite-layout";
 import { validateCodexPetMetadata } from "@open-pets/pet-format/metadata";
+
+import {
+  alphaBox,
+  cropScale,
+  decodeImage,
+  encodeWebp,
+  flipHorizontal,
+  pad,
+  type EncodeOptions,
+  type Rgba,
+} from "./image.ts";
 
 const { frameWidth, frameHeight, columns, rows } = codexV2SpriteLayout;
 export const sheetWidth = frameWidth * columns; // 1536
@@ -36,12 +46,6 @@ export interface PetPlan {
   readonly gazeAnchor?: { readonly x: number; readonly y: number };
 }
 
-interface Rgba {
-  readonly width: number;
-  readonly height: number;
-  readonly data: Uint8Array;
-}
-
 async function fetchSource(
   source: string,
   planDir: string,
@@ -56,40 +60,6 @@ async function fetchSource(
     await Bun.write(target, response);
   }
   return target;
-}
-
-async function decode(path: string, filters = ""): Promise<Rgba> {
-  const { width, height } = await new Bun.Image(
-    await Bun.file(path).arrayBuffer(),
-  ).metadata();
-  const vf = filters ? ["-vf", filters] : [];
-  const data =
-    await $`ffmpeg -loglevel error -i ${path} ${vf} -f rawvideo -pix_fmt rgba -`.arrayBuffer();
-  const outWidth = filters ? frameWidth : width;
-  const outHeight = filters ? frameHeight : height;
-  if (data.byteLength !== outWidth * outHeight * 4)
-    throw new Error(`decode ${path}: unexpected size ${data.byteLength}`);
-  return { width: outWidth, height: outHeight, data: new Uint8Array(data) };
-}
-
-/** Bounding box of pixels with alpha above the threshold. */
-function alphaBox(image: Rgba, threshold = 8) {
-  let left = image.width,
-    top = image.height,
-    right = -1,
-    bottom = -1;
-  for (let y = 0; y < image.height; y++) {
-    for (let x = 0; x < image.width; x++) {
-      if (image.data[(y * image.width + x) * 4 + 3] > threshold) {
-        if (x < left) left = x;
-        if (x > right) right = x;
-        if (y < top) top = y;
-        if (y > bottom) bottom = y;
-      }
-    }
-  }
-  if (right < 0) throw new Error("image is fully transparent");
-  return { left, top, right, bottom };
 }
 
 function blit(
@@ -120,12 +90,14 @@ export interface BuildResult {
   readonly spritesheet: string;
   readonly bytes: number;
   readonly frames: number;
+  readonly encoder: "bun" | "cwebp";
 }
 
 /** Builds `<outDir>/<id>/{pet.json,spritesheet.webp}` and validates it with the OpenPets format rules. */
 export async function buildPet(
   planPath: string,
   outDir: string,
+  options: EncodeOptions = {},
 ): Promise<BuildResult> {
   const plan = (await Bun.file(planPath).json()) as PetPlan;
   const planDir = dirname(resolve(planPath));
@@ -147,9 +119,10 @@ export async function buildPet(
     paths[name] = await fetchSource(source, planDir, cacheDir);
 
   // One crop box for every source keeps scale and feet position identical across frames.
-  const boxes = await Promise.all(
-    Object.values(paths).map(async (path) => alphaBox(await decode(path))),
-  );
+  const decoded = new Map<string, Rgba>();
+  for (const [name, path] of Object.entries(paths))
+    decoded.set(name, await decodeImage(new Uint8Array(await Bun.file(path).arrayBuffer())));
+  const boxes = [...decoded.values()].map((image) => alphaBox(image));
   const crop = boxes.reduce((box, next) => ({
     left: Math.min(box.left, next.left),
     top: Math.min(box.top, next.top),
@@ -177,20 +150,20 @@ export async function buildPet(
   const padY = frameHeight - margin - scaledHeight;
 
   const rendered = new Map<string, Rgba>();
-  const render = async (name: string, mirror: boolean) => {
+  const render = (name: string, mirror: boolean) => {
     const key = `${name}:${mirror}`;
     const cached = rendered.get(key);
     if (cached) return cached;
-    const path = paths[name];
-    if (!path) throw new Error(`unknown source ${name}`);
-    const filters = [
-      `crop=${cropWidth}:${cropHeight}:${crop.left}:${crop.top}`,
-      `scale=${scaledWidth}:${scaledHeight}:flags=lanczos`,
-      ...(mirror ? ["hflip"] : []),
-      `pad=${frameWidth}:${frameHeight}:${padX}:${padY}:color=0x00000000`,
-      "format=rgba",
-    ].join(",");
-    const frame = await decode(path, filters);
+    const source = decoded.get(name);
+    if (!source) throw new Error(`unknown source ${name}`);
+    const scaled = cropScale(source, crop, scaledWidth, scaledHeight);
+    const frame = pad(
+      mirror ? flipHorizontal(scaled) : scaled,
+      frameWidth,
+      frameHeight,
+      padX,
+      padY,
+    );
     rendered.set(key, frame);
     return frame;
   };
@@ -202,7 +175,7 @@ export async function buildPet(
     for (const [column, frame] of frames.entries()) {
       blit(
         sheet,
-        await render(frame.source, frame.mirror ?? false),
+        render(frame.source, frame.mirror ?? false),
         column,
         row,
         frame.dx ?? 0,
@@ -214,7 +187,7 @@ export async function buildPet(
   // Layout v2 shows column 6 of row 0 as the neutral pose; rows 9-10 are spare and repeat idle.
   blit(
     sheet,
-    await render(plan.states.idle[0].source, false),
+    render(plan.states.idle[0].source, false),
     codexV2SpriteLayout.neutralPose!.column,
     0,
     0,
@@ -224,7 +197,7 @@ export async function buildPet(
     for (const [column, frame] of plan.states.idle.entries())
       blit(
         sheet,
-        await render(frame.source, false),
+        render(frame.source, false),
         column,
         spare,
         0,
@@ -234,10 +207,12 @@ export async function buildPet(
 
   const folder = join(outDir, plan.id);
   await mkdir(folder, { recursive: true });
-  const raw = join(cacheDir, `${plan.id}.rgba`);
-  await Bun.write(raw, sheet);
   const spritesheet = join(folder, "spritesheet.webp");
-  await $`ffmpeg -loglevel error -y -f rawvideo -pix_fmt rgba -s ${sheetWidth}x${sheetHeight} -i ${raw} -c:v libwebp -lossless 1 -compression_level 6 -q:v 100 -frames:v 1 ${spritesheet}`;
+  const encoded = await encodeWebp(
+    { width: sheetWidth, height: sheetHeight, data: sheet },
+    options,
+  );
+  await Bun.write(spritesheet, encoded.bytes);
 
   const metadata = {
     id: plan.id,
@@ -248,12 +223,12 @@ export async function buildPet(
     ...(plan.gazeAnchor ? { gazeAnchor: plan.gazeAnchor } : {}),
   };
   validateCodexPetMetadata(metadata, plan.id);
-  const encoded = await new Bun.Image(
+  const written = await new Bun.Image(
     await Bun.file(spritesheet).arrayBuffer(),
   ).metadata();
-  if (encoded.width !== sheetWidth || encoded.height !== sheetHeight) {
+  if (written.width !== sheetWidth || written.height !== sheetHeight) {
     throw new Error(
-      `spritesheet is ${encoded.width}x${encoded.height}, expected ${sheetWidth}x${sheetHeight}`,
+      `spritesheet is ${written.width}x${written.height}, expected ${sheetWidth}x${sheetHeight}`,
     );
   }
   await Bun.write(
@@ -265,5 +240,6 @@ export async function buildPet(
     spritesheet,
     bytes: Bun.file(spritesheet).size,
     frames: count,
+    encoder: encoded.encoder,
   };
 }

@@ -1,5 +1,5 @@
 #!/usr/bin/env bun
-// aphrody-pet build <plan.json> [--out dir]: writes a validated OpenPets pet folder.
+// aphrody-pet build <plan.json> [--out dir] [--no-cwebp]: writes a validated OpenPets pet folder.
 // aphrody-pet show <plan.json> [--out dir] [--hold seconds]: builds, installs into the running
 // OpenPets desktop app, and holds a lease on the pet so it walks on screen.
 import { join } from "node:path";
@@ -15,12 +15,14 @@ const outDir = option("--out") ?? join(import.meta.dir, "..", "dist");
 
 if ((command !== "build" && command !== "show") || !planPath) {
   console.error(
-    "usage: aphrody-pet build|show <plan.json> [--out dir] [--hold seconds]",
+    "usage: aphrody-pet build|show <plan.json> [--out dir] [--hold seconds] [--no-cwebp]",
   );
   process.exit(2);
 }
 
-const built = await buildPet(planPath, outDir);
+const built = await buildPet(planPath, outDir, {
+  cwebp: !rest.includes("--no-cwebp"),
+});
 console.log(JSON.stringify(built, null, 2));
 
 if (command === "show") {
