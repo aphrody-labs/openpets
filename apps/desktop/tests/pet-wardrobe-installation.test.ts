@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { existsSync, mkdtempSync, mkdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from "node:fs";
-import { register } from "node:module";
+import { register } from "./support/module-hooks.js";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 
@@ -55,7 +55,7 @@ const petPathsMock = `data:text/javascript,${encodeURIComponent(`
   }
 `)}`;
 
-register(`data:text/javascript,${encodeURIComponent(`
+await register(`data:text/javascript,${encodeURIComponent(`
   export async function resolve(specifier, context, nextResolve) {
     if (specifier === "electron") return { url: ${JSON.stringify(electronMock)}, shortCircuit: true };
     if (specifier === "./pet-paths.js" && (context.parentURL.includes("/apps/desktop/.test-dist/src/") || context.parentURL.includes("/apps/desktop/src/"))) {

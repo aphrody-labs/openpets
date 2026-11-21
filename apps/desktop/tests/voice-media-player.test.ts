@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { register } from "node:module";
+import { register } from "./support/module-hooks.js";
 
 type FakeWindow = {
   readonly loadStarted: Promise<void>;
@@ -39,7 +39,7 @@ const electronMock = `
   export const session = { fromPartition: (partition) => sessions.get(partition) ?? (() => { const value = { setPermissionRequestHandler: () => {}, setPermissionCheckHandler: () => {} }; sessions.set(partition, value); return value; })() };
 `;
 const electronUrl = `data:text/javascript,${encodeURIComponent(electronMock)}`;
-register(`data:text/javascript,${encodeURIComponent(`
+await register(`data:text/javascript,${encodeURIComponent(`
   export async function resolve(specifier, context, nextResolve) {
     if (specifier === "electron") return { url: ${JSON.stringify(electronUrl)}, shortCircuit: true };
     return nextResolve(specifier, context);

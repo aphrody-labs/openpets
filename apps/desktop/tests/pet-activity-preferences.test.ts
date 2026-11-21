@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { mkdtempSync, realpathSync, rmSync } from "node:fs";
-import { register } from "node:module";
+import { register } from "./support/module-hooks.js";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 
@@ -13,7 +13,7 @@ const electronMock = `data:text/javascript,${encodeURIComponent(`
   export const shell = { openPath: async () => "" };
   export default { app, net, powerMonitor, screen, shell };
 `)}`;
-register(`data:text/javascript,${encodeURIComponent(`
+await register(`data:text/javascript,${encodeURIComponent(`
   export async function resolve(specifier, context, nextResolve) {
     if (specifier === "electron") return { url: ${JSON.stringify(electronMock)}, shortCircuit: true };
     return nextResolve(specifier, context);

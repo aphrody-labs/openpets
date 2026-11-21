@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import * as moduleApi from "node:module";
+import * as moduleApi from "./support/module-hooks.js";
 import { test } from "node:test";
 
 test("Motion wardrobe resolves preferences, commits, and explicit retries without inventing a worn outfit", async () => {

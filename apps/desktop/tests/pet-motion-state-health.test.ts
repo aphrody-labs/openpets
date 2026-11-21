@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { mkdtemp, mkdir, realpath, rm, unlink, writeFile } from "node:fs/promises";
-import * as moduleApi from "node:module";
+import * as moduleApi from "./support/module-hooks.js";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";

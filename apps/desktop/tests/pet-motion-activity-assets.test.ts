@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
-import { register } from "node:module";
+import { register } from "./support/module-hooks.js";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -10,7 +10,7 @@ import type { MotionAppearance, MotionBodyDescriptor } from "../src/pet-body-con
 import { createPetBodyState } from "../src/pet-body-state.js";
 
 const mock = (source: string) => `data:text/javascript,${encodeURIComponent(source)}`;
-register(mock(`
+await register(mock(`
   export async function resolve(specifier, context, nextResolve) {
     if ((specifier === './pet-motion-snapshot.js' || specifier === './pet-motion-snapshot.ts') && /pet-motion-activity-assets\\.(js|ts)(\\?|$)/.test(context.parentURL)) {
       return { url: ${JSON.stringify(mock("export function isTrackedMotionSnapshotDescriptor(value) { return value === globalThis.motionTestDescriptor; }"))}, shortCircuit: true };

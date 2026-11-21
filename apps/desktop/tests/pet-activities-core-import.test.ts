@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
-import { register } from "node:module";
+import { register } from "./support/module-hooks.js";
 import { petActivityFixture } from "./pet-activity-fixtures.js";
 
 // The shared metadata contract must remain usable without desktop/image I/O.
-register(`data:text/javascript,${encodeURIComponent(`
+await register(`data:text/javascript,${encodeURIComponent(`
   export async function resolve(specifier, context, nextResolve) {
     if (specifier === "sharp" || specifier === "electron" || specifier.startsWith("node:fs")) {
       throw new Error("Pet activity metadata cannot depend on " + specifier);

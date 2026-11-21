@@ -1,6 +1,5 @@
 import assert from "node:assert/strict";
 import { chmodSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from "node:fs";
-import { register } from "node:module";
 import { join, sep } from "node:path";
 import { tmpdir } from "node:os";
 
@@ -13,20 +12,20 @@ writeFileSync(nodePath, "node", "utf8");
 chmodSync(nodePath, 0o700);
 writeFileSync(join(userDataPath, "openpets-state.json"), JSON.stringify({ version: 1, preferences: { nodeCommandPath: rawNodePath } }), "utf8");
 
-const electronMock = `data:text/javascript,${encodeURIComponent(`
-  export const app = { getVersion: () => "4.1.0", getPath: (name) => name === "userData" ? ${JSON.stringify(userDataPath)} : ${JSON.stringify(userDataPath)}, isReady: () => true };
-  export const net = {};
-  export const powerMonitor = { on: () => {}, getSystemIdleTime: () => 0 };
-  export const screen = { on: () => {}, getAllDisplays: () => [] };
-  export const shell = { openPath: async () => "" };
-  export default { app, net, powerMonitor, screen, shell };
-`)}`;
-register(`data:text/javascript,${encodeURIComponent(`
-  export async function resolve(specifier, context, nextResolve) {
-    if (specifier === "electron") return { url: ${JSON.stringify(electronMock)}, shortCircuit: true };
-    return nextResolve(specifier, context);
-  }
-`)}`, import.meta.url);
+const electronMock = {
+  app: { getVersion: () => "4.1.0", getPath: () => userDataPath, isReady: () => true },
+  net: {},
+  powerMonitor: { on: () => {}, getSystemIdleTime: () => 0 },
+  screen: { on: () => {}, getAllDisplays: () => [] },
+  shell: { openPath: async () => "" },
+};
+
+// Resolved at run time: the desktop test build has no Bun type declarations.
+const bunTestSpecifier = "bun:test";
+const { mock } = (await import(bunTestSpecifier)) as {
+  readonly mock: { module(specifier: string, factory: () => Record<string, unknown>): void };
+};
+mock.module("electron", () => ({ ...electronMock, default: electronMock }));
 
 try {
   const { getAppStateSnapshot, initializeAppState, releaseStartupInstallLock } = await import("../src/app-state.js");

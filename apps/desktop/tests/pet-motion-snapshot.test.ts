@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { EventEmitter } from "node:events";
 import { access, mkdtemp, mkdir, readFile, rename, rm, symlink, writeFile } from "node:fs/promises";
-import { register } from "node:module";
+import { register } from "./support/module-hooks.js";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -45,7 +45,7 @@ const filesystem = mock(`
   }
 `);
 (globalThis as typeof globalThis & { snapshotRemovalPromises: Promise<void>[] }).snapshotRemovalPromises = [];
-register(mock(`
+await register(mock(`
   const mocks = new Map([
     ['electron', ${JSON.stringify(electron)}],
     ['./pet-paths.js', ${JSON.stringify(paths)}],

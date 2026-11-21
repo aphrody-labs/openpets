@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { EventEmitter } from "node:events";
 import { mkdtemp, mkdir, rm, truncate, writeFile } from "node:fs/promises";
-import { register } from "node:module";
+import { register } from "./support/module-hooks.js";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -20,7 +20,7 @@ const snapshots = mock(`
   export function isWindowMotionSnapshotUrlAuthorized(sender) { return sender.authorized; }
 `);
 const logger = mock("export function warn() {};");
-register(mock(`
+await register(mock(`
   const mocks = new Map([['electron', ${JSON.stringify(electron)}], ['./pet-motion-snapshot.js', ${JSON.stringify(snapshots)}], ['./logger.js', ${JSON.stringify(logger)}]]);
   export async function resolve(specifier, context, nextResolve) {
     if (mocks.has(specifier)) return { url: mocks.get(specifier), shortCircuit: true };

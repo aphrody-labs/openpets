@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from "node:fs";
-import { register } from "node:module";
+import { register } from "./support/module-hooks.js";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -23,7 +23,7 @@ const petPathsMock = `data:text/javascript,${encodeURIComponent(`
     if (!/^[a-z0-9][a-z0-9_-]{0,63}$/.test(petId) || petId === 'builtin') throw new Error('Invalid pet id.');
   }
 `)}`;
-register(`data:text/javascript,${encodeURIComponent(`
+await register(`data:text/javascript,${encodeURIComponent(`
   export async function resolve(specifier, context, nextResolve) {
     if (specifier === 'electron') return { url: ${JSON.stringify(electronMock)}, shortCircuit: true };
     if (specifier === './pet-paths.js' && context.parentURL?.endsWith('/app-state.js')) {

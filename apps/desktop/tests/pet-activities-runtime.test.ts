@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { EventEmitter } from "node:events";
-import * as moduleApi from "node:module";
+import * as moduleApi from "./support/module-hooks.js";
 import { mock } from "node:test";
 import type { PetActivity } from "@open-pets/pet-format/activities";
 import { normalizePetActivityPreferences } from "../src/pet-activity-policy.js";

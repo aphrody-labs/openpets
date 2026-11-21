@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { EventEmitter } from "node:events";
-import * as moduleApi from "node:module";
+import * as moduleApi from "./support/module-hooks.js";
 import { mock, test } from "node:test";
 
 test("Motion activity targets the committed body and rejects stale renderer results", async () => {

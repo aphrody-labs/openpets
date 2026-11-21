@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { register } from "node:module";
+import { register } from "./support/module-hooks.js";
 
 const pluginMock = `
   export const state = { operationBegin: 0, operationSettle: 0, operationRelease: 0, arbiterRelease: 0, captureStarts: 0, captureCancels: 0, pendingDevice: true, arbiterBusy: false, cancelHook: null };
@@ -32,7 +32,7 @@ const deviceMock = `
 `;
 const pluginUrl = `data:text/javascript,${encodeURIComponent(pluginMock)}`;
 const deviceUrl = `data:text/javascript,${encodeURIComponent(deviceMock)}`;
-register(`data:text/javascript,${encodeURIComponent(`
+await register(`data:text/javascript,${encodeURIComponent(`
   export async function resolve(specifier, context, nextResolve) {
     if (specifier === "./plugin-voice.js" && context.parentURL.includes("provider-configuration-test-session")) return { url: ${JSON.stringify(pluginUrl)}, shortCircuit: true };
     if (specifier === "./voice-device-service.js" && context.parentURL.includes("provider-configuration-test-session")) return { url: ${JSON.stringify(deviceUrl)}, shortCircuit: true };
