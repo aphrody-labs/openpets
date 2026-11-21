@@ -1,5 +1,5 @@
 import { build } from "esbuild";
-import { access, cp, mkdir, rm } from "node:fs/promises";
+import { access, cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 import { createRequire } from "node:module";
@@ -8,6 +8,16 @@ import { builtInPetWardrobe, builtInPetOutfitFileName, builtInPetOutfitsDirector
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const require = createRequire(import.meta.url);
 const vipsRoot = resolve(dirname(require.resolve("wasm-vips")), "..");
+
+// Emscripten bridges worker_threads messages only when `globalThis.postMessage` is missing.
+// Bun defines it in workers, which skips the bridge and deadlocks every pthread that libvips
+// starts. Dropping that guard is a no-op under Node and Electron, where it is always undefined.
+async function copyVipsNodeEntry() {
+  const guard = "globalThis.postMessage||(";
+  const source = await readFile(resolve(vipsRoot, "lib", "vips-node.mjs"), "utf8");
+  if (!source.includes(guard)) throw new Error("wasm-vips vips-node.mjs no longer contains the worker message bridge guard.");
+  await writeFile(resolve(root, "dist", "decoder", "vips-node.mjs"), source.replace(guard, "("));
+}
 await rm(resolve(root, "dist"), { recursive: true, force: true });
 await mkdir(resolve(root, "dist", "media"), { recursive: true });
 await mkdir(resolve(root, "dist", "decoder"), { recursive: true });
@@ -20,8 +30,8 @@ await Promise.all([
     format: "cjs",
     target: "node22",
   }),
+  copyVipsNodeEntry(),
   ...[
-    "vips-node.mjs",
     "vips.wasm",
     "vips-heif.wasm",
     "vips-jxl.wasm",

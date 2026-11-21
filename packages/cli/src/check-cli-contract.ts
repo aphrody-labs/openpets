@@ -538,7 +538,7 @@ async function captureDoctorJson(cwd: string): Promise<Record<string, unknown>> 
     await runDoctor({ cwd, json: true });
   } finally {
     process.stdout.write = originalWrite;
-    process.exitCode = previousExitCode;
+    process.exitCode = previousExitCode ?? 0;
   }
   return JSON.parse(captured) as Record<string, unknown>;
 }
@@ -549,13 +549,13 @@ async function captureDoctorText(cwd: string): Promise<{ readonly text: string; 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   process.stdout.write = ((chunk: any) => { captured += typeof chunk === "string" ? chunk : String(chunk); return true; }) as typeof process.stdout.write;
   const previousExitCode = process.exitCode;
-  process.exitCode = undefined;
+  process.exitCode = 0;
   try {
     await runDoctor({ cwd, json: false });
     return { text: captured, exitCode: process.exitCode };
   } finally {
     process.stdout.write = originalWrite;
-    process.exitCode = previousExitCode;
+    process.exitCode = previousExitCode ?? 0;
   }
 }
 
