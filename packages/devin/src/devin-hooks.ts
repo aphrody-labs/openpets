@@ -1,8 +1,8 @@
 import { isAbsolute, join } from "node:path";
-import { homedir } from "node:os";
 
 import {
   editDevinConfigText,
+  resolveHomeDir,
   isRecord,
   planDevinConfigWrite,
   readDevinConfigFile,
@@ -58,13 +58,13 @@ interface HookFormat {
 
 export function getDevinCliConfigPath(
   env: NodeJS.ProcessEnv = process.env,
-  homeDir = homedir(),
+  homeDir = resolveHomeDir(),
   platform: NodeJS.Platform | string = process.platform,
 ): string {
   return join(getDevinConfigDir(env, homeDir, platform), "config.json");
 }
 
-export function getDevinDesktopHooksPath(homeDir = homedir()): string {
+export function getDevinDesktopHooksPath(homeDir = resolveHomeDir()): string {
   return join(homeDir, ".codeium", "windsurf", "hooks.json");
 }
 

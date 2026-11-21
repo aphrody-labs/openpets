@@ -1,5 +1,6 @@
-import { homedir } from "node:os";
 import { isAbsolute, join } from "node:path";
+
+import { resolveHomeDir } from "./devin-config-file.js";
 
 export const devinMcpServerName = "openpets";
 export const openPetsMcpPackageName = "@open-pets/mcp";
@@ -87,7 +88,7 @@ export function buildDevinMcpEntry(options: DevinMcpPreviewOptions): DevinMcpEnt
  */
 export function getDevinConfigDir(
   env: NodeJS.ProcessEnv = process.env,
-  homeDir = homedir(),
+  homeDir = resolveHomeDir(),
   platform: NodeJS.Platform | string = process.platform,
 ): string {
   if (platform === "win32") {
@@ -104,7 +105,7 @@ export function getDevinConfigDir(
 /** User-scope MCP config shared by Devin Desktop and the Devin CLI. */
 export function getDevinGlobalMcpConfigPath(
   env: NodeJS.ProcessEnv = process.env,
-  homeDir = homedir(),
+  homeDir = resolveHomeDir(),
   platform: NodeJS.Platform | string = process.platform,
 ): string {
   return join(getDevinConfigDir(env, homeDir, platform), "mcp_config.json");

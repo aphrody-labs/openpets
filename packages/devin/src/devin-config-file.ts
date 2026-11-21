@@ -1,8 +1,15 @@
 import { randomUUID } from "node:crypto";
 import { chmodSync, closeSync, lstatSync, mkdirSync, openSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
+import { homedir } from "node:os";
 import { dirname, join, parse, resolve } from "node:path";
 
 import { applyEdits, modify, parse as parseJsonc, type ParseError } from "jsonc-parser";
+
+// Bun's os.homedir() is fixed at process start, so honour a HOME or USERPROFILE override
+// in the live environment the way Node does.
+export function resolveHomeDir(env: NodeJS.ProcessEnv = process.env, platform: NodeJS.Platform | string = process.platform): string {
+  return (platform === "win32" ? env.USERPROFILE : env.HOME) || homedir();
+}
 
 /**
  * Safe read/edit/publish transaction shared by every Devin config file
